@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin - Kost Yu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="kostyu.css">
+</head>
+<body style="background-color: #f4f7f6;">
+
+    <!-- NAVBAR KHUSUS ADMIN -->
+    <header class="dashboard-header admin-header">
+        <div class="logo-dash">
+            <h1>Kost Yu <span>| Admin Control</span></h1>
+        </div>
+        <nav>
+            <a href="dashboard-admin.html" class="active">Ringkasan</a>
+            <a href="index.html" class="logout-btn">Logout</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container" style="max-width: 1100px;">
+        
+        <div class="welcome-section">
+            <h2>Halo, Admin! 👑</h2>
+            <p>Berikut adalah ringkasan aktivitas Kost Yu hari ini.</p>
+        </div>
+
+        <!-- STATISTIK SINGKAT -->
+        <div class="admin-stats-grid">
+            <div class="stat-card">
+                <h3>Total Penghuni</h3>
+                <p class="stat-angka">12 <span>Orang</span></p>
+            </div>
+            <div class="stat-card">
+                <h3>Kamar Tersedia</h3>
+                <p class="stat-angka">3 <span>Kamar</span></p>
+            </div>
+            <div class="stat-card">
+                <h3>Laporan Baru</h3>
+                <p class="stat-angka" style="color: #e53e3e;">2 <span>Kendala</span></p>
+            </div>
+        </div>
+
+        <!-- TABEL 1: PESANAN BARU (BOOKING) -->
+        <div class="admin-panel">
+            <h3 class="panel-title">Menunggu Konfirmasi Pemesanan</h3>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Nama Pemesan</th>
+                            <th>Tipe & Kamar</th>
+                            <th>Metode Bayar</th>
+                            <th>Status Dokumen</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Siti Aminah</td>
+                            <td>Tipe A (A2)</td>
+                            <td>Transfer BCA</td>
+                            <td><span class="badge badge-success">Lengkap (KTP & KK)</span></td>
+                            <td>
+                                <button class="btn-acc">Setujui</button>
+                                <button class="btn-tolak">Tolak</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Rizky Pratama</td>
+                            <td>Tipe C (C1)</td>
+                            <td>GoPay</td>
+                            <td><span class="badge badge-warning">Menunggu Upload</span></td>
+                            <td>
+                                <button class="btn-acc">Setujui</button>
+                                <button class="btn-tolak">Tolak</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TABEL 2: LAPORAN KERUSAKAN PENGHUNI -->
+        <div class="admin-panel">
+            <h3 class="panel-title">Laporan Kerusakan Terbaru</h3>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Kamar</th>
+                            <th>Kategori</th>
+                            <th>Deskripsi Kendala</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>A1 (Budi)</td>
+                            <td>Listrik</td>
+                            <td>Lampu kamar mandi mati sejak semalam.</td>
+                            <td><span class="badge badge-danger">Belum Ditangani</span></td>
+                            <td>
+                                <button class="btn-selesai">Tandai Selesai</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

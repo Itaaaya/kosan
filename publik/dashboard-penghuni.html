@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Penghuni - Kost Yu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="kostyu.css">
+</head>
+<body style="background-color: #f4f7f6;"> <header class="dashboard-header">
+        <div class="logo-dash">
+            <h1>Kost Yu <span>| Penghuni</span></h1>
+        </div>
+        <nav>
+            <a href="dashboard-penghuni.html" class="active">Beranda Dashboard</a>
+            <a href="index.html" class="logout-btn">Logout</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container">
+        
+        <div class="welcome-section">
+            <h2>Halo, Budi Santoso! 👋</h2>
+            <p>Penghuni Kamar A1 • Masuk sejak: 10 Januari 2026</p>
+        </div>
+
+        <div class="dashboard-grid">
+            
+            <div class="dash-card tagihan-card">
+                <h3>Informasi Tagihan</h3>
+                
+                <div class="status-tagihan belum-lunas">Belum Dibayar</div> 
+                
+                <div class="detail-tagihan">
+                    <p>Tagihan Bulan: <strong>Juni 2026</strong></p>
+                    <p>Jatuh Tempo: <strong style="color: #e53e3e;">25 Juni 2026</strong></p>
+                    <p class="nominal">Rp 1.200.000</p>
+                </div>
+                
+                <button class="btn-bayar">Konfirmasi Pembayaran</button>
+            </div>
+
+            <div class="dash-card lapor-card">
+                <h3>Lapor Kerusakan / Kendala</h3>
+                <form action="#">
+                    <div class="form-group">
+                        <label>Kategori Kendala</label>
+                        <select required>
+                            <option value="" disabled selected>-- Pilih Kategori --</option>
+                            <option value="ac">AC Bocor/Mati</option>
+                            <option value="air">Kamar Mandi / Saluran Air</option>
+                            <option value="listrik">Listrik / Lampu Mati</option>
+                            <option value="lainnya">Fasilitas Lainnya</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Deskripsi Kendala</label>
+                        <textarea rows="3" placeholder="Jelaskan detail kerusakannya di sini..." required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-lapor">Kirim Laporan</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Register - Kost Yu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="kostyu.css">
+</head>
+<body>
+
+    <div class="login-page-wrapper">
+        <div class="login-container">
+            
+            <!-- ================= FORM LOGIN ================= -->
+            <div id="box-login">
+                <h2>Masuk Akun</h2>
+                <form id="formLogin">
+                    <div class="input-group">
+                        <input type="text" id="username" placeholder="Username" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" placeholder="Password" required>
+                    </div>
+                    
+                    <!-- Tombol Login -->
+                    <button type="button" onclick="prosesLogin()" class="btn-login-submit">Login</button>
+                </form>
+
+                <div class="switch-text">
+                    Belum punya akun? <a href="javascript:void(0);" onclick="tampilkanDaftar()">Daftar Sekarang</a>
+                </div>
+            </div>
+
+            <!-- ================= FORM DAFTAR ================= -->
+            <div id="box-daftar" style="display: none;"> <!-- Sembunyi secara otomatis -->
+                <h2>Daftar Akun</h2>
+                <form>
+                    <div class="input-group">
+                        <input type="text" placeholder="Nama Lengkap" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" placeholder="Username Baru" required>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" placeholder="Buat Password" required>
+                    </div>
+                    
+                    <!-- Tombol Daftar -->
+                    <button type="button" class="btn-login-submit" onclick="alert('Pendaftaran berhasil! Silakan masuk menggunakan akun baru Anda.')">Daftar</button>
+                </form>
+
+                <div class="switch-text">
+                    Sudah punya akun? <a href="javascript:void(0);" onclick="tampilkanLogin()">Login di sini</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- SCRIPT PENGATUR LOGIKA & TOMBOL -->
+    <script>
+        // 1. Script untuk proses pengecekan role (Admin/Penghuni/Pengunjung)
+        function prosesLogin() {
+            var user = document.getElementById("username").value.toLowerCase();
+            
+            if (user === "admin") {
+                alert("Login berhasil sebagai Admin!");
+                window.location.href = "dashboard-admin.html";
+            } else if (user === "penghuni" || user === "budi") {
+                alert("Login berhasil. Selamat datang di Dashboard Penghuni!");
+                window.location.href = "dashboard-penghuni.html";
+            } else if (user !== "") {
+                alert("Login berhasil. Kembali ke Beranda.");
+                window.location.href = "index.html";
+            } else {
+                alert("Username tidak boleh kosong!");
+            }
+        }
+
+        // 2. Script untuk memunculkan form Daftar dan menyembunyikan form Login
+        function tampilkanDaftar() {
+            document.getElementById("box-login").style.display = "none";
+            document.getElementById("box-daftar").style.display = "block";
+        }
+
+        // 3. Script untuk memunculkan form Login dan menyembunyikan form Daftar
+        function tampilkanLogin() {
+            document.getElementById("box-daftar").style.display = "none";
+            document.getElementById("box-login").style.display = "block";
+        }
+    </script>
+
+</body>
+</html>

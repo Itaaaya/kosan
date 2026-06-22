@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Informasi - Kost Yu</title>
+
+    <!-- FONT -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="kostyu.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo">
+            <img src="PicKostYu.jpeg" alt="Logo Kost Yu">
+            <div class="logo-text">
+                <h1>Kost Yu</h1>
+                <span class="tagline">Hunian Nyaman & Aman</span>
+            </div>
+        </div>
+
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+        
+        <nav id="sidebar">
+            <a href="index.html" class="nav-link">BERANDA</a>
+            
+            <div class="dropdown">
+                <a href="#" class="dropdown-toggle" onclick="toggleDropdown(event)">KAMAR <span class="arrow">▾</span></a>
+                <div class="dropdown-menu">
+                    <a href="kamarA.html">TIPE A</a>
+                    <a href="kamarB.html">TIPE B</a>
+                    <a href="kamarC.html">TIPE C</a>
+                    <a href="kamarD.html">TIPE D</a>
+                </div>
+            </div>
+            <a href="layanan.html" class="nav-link">FASILITAS</a>
+            <a href="informasi.html" class="nav-link active">INFORMASI</a>
+            <a href="login.html" class="login-btn">LOGIN</a>
+        </nav>
+
+        <div class="overlay" onclick="toggleMenu()"></div>
+    </header>
+
+    <!-- HERO -->
+    <section class="info-hero">
+
+        <h1>Informasi Kost Yu</h1>
+
+        <p>
+            Temukan informasi lengkap mengenai Kost Yu
+            dengan fasilitas nyaman dan lingkungan aman.
+        </p>
+
+    </section>
+
+    <!-- INFORMASI -->
+    <section class="info-container">
+
+        <!-- ALAMAT -->
+        <div class="info-card">
+
+            <div class="info-icon">
+                📍
+            </div>
+
+            <h2>Alamat</h2>
+
+            <p>
+                Jl. Bumur III No. 27, Bekasi,
+                <br>
+                Jawa Barat 17144
+            </p>
+
+        </div>
+
+        <!-- TELEPON -->
+        <div class="info-card">
+
+            <div class="info-icon">
+                📞
+            </div>
+
+            <h2>Kontak</h2>
+
+            <p>
+                +62 895-1618-9911
+            </p>
+
+        </div>
+
+        <!-- JAM -->
+        <div class="info-card">
+
+            <div class="info-icon">
+                🕒
+            </div>
+
+            <h2>Jam Operasional</h2>
+
+            <p>
+                Senin - Minggu
+                <br>
+                08.00 - 22.00 WIB
+            </p>
+
+        </div>
+
+    </section>
+
+    <!-- TENTANG -->
+    <section class="tentang-kost">
+
+        <div class="tentang-text">
+
+            <h2>Tentang Kost Yu</h2>
+
+            <p>
+                Kost Yu hadir sebagai tempat tinggal yang nyaman,
+                aman, dan terpercaya untuk mahasiswa maupun pekerja.
+                Dengan fasilitas lengkap serta lingkungan yang bersih,
+                Kost Yu menjadi pilihan tepat untuk hunian sehari-hari.
+            </p>
+
+        </div>
+
+        <img src="PicBeranda.jpg" alt="">
+
+    </section>
+
+    <!-- CTA -->
+    <section class="info-cta">
+
+        <h2>Ingin Tinggal di Kost Yu?</h2>
+
+        <p>
+            Hubungi kami sekarang dan dapatkan pengalaman
+            tinggal yang nyaman dan aman.
+        </p>
+
+        <button>
+            Hubungi Kami
+        </button>
+
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+
+        <div class="footer-content">
+
+            <h2>Kost Yu</h2>
+
+            <p>Nyaman • Aman • Terpercaya</p>
+
+            <div class="footer-menu">
+
+                <a href="index.html">Beranda</a>
+                <a href="kamar.html">Kamar</a>
+                <a href="ketentuan.html">Ketentuan</a>
+                <a href="layanan.html">Layanan</a>
+                <a href="informasi.html">Informasi</a>
+                <a href="login.html">Login</a>
+            </div>
+
+            <p class="copyright">
+                © 2025 Kost Yu. All Rights Reserved
+            </p>
+
+        </div>
+
+    </footer>
+<script>
+    function toggleMenu() {
+        var navbar = document.getElementById("sidebar");
+        var overlay = document.querySelector(".overlay");
+        navbar.classList.toggle("active");
+        overlay.classList.toggle("active");
+    }
+
+    function toggleDropdown(e) {
+        e.preventDefault();
+        var dropdown = e.target.closest('.dropdown');
+        dropdown.classList.toggle('open');
+    }
+
+    // FIX LOGIKA SLIDER ARAH KIRI & KANAN
+    function moveSlide(button, direction) {
+        const slider = button.parentElement;
+        const slidesContainer = slider.querySelector('.slider-slides');
+        const slides = slidesContainer.querySelectorAll('img');
+        let currentSlide = parseInt(slider.getAttribute('data-slide')) || 0;
+
+        currentSlide += direction;
+
+        if (currentSlide >= slides.length) {
+            currentSlide = 0;
+        } else if (currentSlide < 0) {
+            currentSlide = slides.length - 1;
+        }
+
+        slider.setAttribute('data-slide', currentSlide);
+        // Menggeser kontainer sesuai index slide (0, -100%, -200%, dst)
+        slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
+</script>
+</body>
+</html>

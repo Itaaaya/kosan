@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pemesanan - Kost Yu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="kostyu.css">
+</head>
+<body style="background-color: #f5edd3; padding: 40px 20px;">
+
+    <div class="booking-wrapper">
+        <h2>Formulir Pemesanan Kamar</h2>
+        <p class="booking-subtitle">Silakan isi data diri Anda dengan lengkap dan benar.</p>
+
+        <form action="#" method="POST" enctype="multipart/form-data">
+            
+            <!-- SELEKSI KAMAR -->
+            <div class="form-section-title">Informasi Kamar</div>
+            <div class="form-row">
+                
+                <!-- DROP-DOWN TIPE KAMAR -->
+                <div class="form-group">
+                    <label>Pilih Tipe Kamar</label>
+                    <select required>
+                        <option value="" disabled selected>-- Pilih Tipe --</option>
+                        <option value="A">Tipe A</option>
+                        <option value="B">Tipe B</option>
+                        <option value="C">Tipe C</option>
+                        <option value="D">Tipe D</option>
+                    </select>
+                </div>
+
+                <!-- DROP-DOWN NOMOR KAMAR -->
+                <div class="form-group">
+                    <label>Pilih Nomor Kamar</label>
+                    <select required>
+                        <option value="" disabled selected>-- Pilih Nomor --</option>
+                        <option value="A1">A1 (Tersedia)</option>
+                        <option value="A2">A2 (Tersedia)</option>
+                        <option value="A4">A4 (Tersedia)</option>
+                        <option value="B1">B1 (Tersedia)</option>
+                        <option value="B2">B2 (Tersedia)</option>
+                        <option value="C1">C1 (Tersedia)</option>
+                        <option value="D2">D2 (Tersedia)</option>
+                    </select>
+                </div>
+                
+            </div>
+
+            <!-- DATA DIRI -->
+            <div class="form-section-title">Data Diri Pengunjung</div>
+            <div class="form-group">
+                <label>Nama Lengkap</label>
+                <input type="text" placeholder="Masukkan nama sesuai KTP" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nomor Telepon / WhatsApp</label>
+                    <input type="tel" placeholder="Contoh: 0895..." required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="Contoh: nama@gmail.com" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Alamat Lengkap Asal</label>
+                <textarea placeholder="Masukkan alamat lengkap asal rumah Anda" rows="3" required></textarea>
+            </div>
+
+            <!-- KONTAK DARURAT -->
+            <div class="form-section-title">Kontak Darurat (Keluarga/Kerabat)</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nama Kontak Darurat</label>
+                    <input type="text" placeholder="Nama orang tua / wali" required>
+                </div>
+                <div class="form-group">
+                    <label>Nomor Telepon Darurat</label>
+                    <input type="tel" placeholder="Nomor telepon aktif" required>
+                </div>
+            </div>
+
+            <!-- UPLOAD DOKUMEN -->
+            <div class="form-section-title">Dokumen Pendukung</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Foto KTP</label>
+                    <input type="file" accept="image/*" required>
+                </div>
+                <div class="form-group">
+                    <label>Foto Kartu Keluarga (KK)</label>
+                    <input type="file" accept="image/*" required>
+                </div>
+            </div>
+
+            <!-- METODE PEMBAYARAN -->
+            <div class="form-section-title">Metode Pembayaran DP / Sewa</div>
+            <div class="form-group">
+                <label>Pilih Metode</label>
+                <select required>
+                    <option value="" disabled selected>-- Pilih Metode Pembayaran --</option>
+                    <option value="bca">Transfer Bank BCA</option>
+                    <option value="mandiri">Transfer Bank Mandiri</option>
+                    <option value="gopay">E-Wallet (GoPay / OVO / Dana)</option>
+                </select>
+            </div>
+
+            <!-- TOMBOL SUBMIT -->
+            <button type="submit" class="btn-submit-booking">Kirim Formulir Pemesanan</button>
+        </form>
+    </div>
+
+</body>
+</html>
