@@ -14,7 +14,6 @@
 </head>
 <body>
 
-<!-- NAVBAR -->
     <header>
         <div class="logo">
             <img src="PicKostYu.jpeg" alt="Logo Kost Yu">
@@ -46,118 +45,72 @@
         <div class="overlay" onclick="toggleMenu()"></div>
     </header>
 
-<!-- DETAIL KAMAR -->
 <section class="detail-kamar">
 
-    <!-- BAGIAN KIRI -->
     <div class="gallery">
 
-        <!-- FOTO UTAMA -->
         <img src="PicKamarD.jpeg" class="main-image" alt="">
 
-        <!-- FOTO DETAIL -->
         <div class="thumbnail-container">
-
             <img src="detailD1.jpg" alt="">
             <img src="detailD2.jpg" alt="">
             <img src="detailD3.jpg" alt="">
             <img src="detailD4.jpg" alt="">
             <img src="detailD5.jpg" alt="">
-
         </div>
 
-        <!-- KETERSEDIAAN -->
         <div class="ketersediaan">
-
             <h3>Ketersediaan Kamar</h3>
 
-            <div class="kamar-list">
-
-                <div class="kamar-status penuh">
-                    D1 • Penuh
-                </div>
-
-                <div class="kamar-status tersedia">
-                    D2 • Tersedia
-                </div>
-
-                <div class="kamar-status tersedia">
-                    D3 • Tersedia
-                </div>
-
-                <div class="kamar-status penuh">
-                    D4 • Penuh
-                </div>
-
-                <div class="kamar-status tersedia">
-                    D5 • Tersedia
-                </div>
-
+            <div class="kamar-list" id="daftar-kamar">
+                <span style="color: #888; font-style: italic;">Memuat status kamar...</span>
             </div>
-
         </div>
 
     </div>
 
-    <!-- BAGIAN KANAN -->
     <div class="detail-info">
 
         <h1>Kamar Tipe D</h1>
 
         <p class="harga">
-            Rp 2.300.000 / bulan
+            Rp 1.300.000 / bulan
         </p>
 
-        <!-- DESKRIPSI -->
         <div class="deskripsi">
-
             <h3>Deskripsi Kamar</h3>
-
             <p>
                 Kamar tipe D merupakan kamar premium
                 dengan ukuran luas, desain modern,
                 dan fasilitas eksklusif yang nyaman
                 untuk penghuni.
             </p>
-
         </div>
 
-        <!-- FASILITAS -->
         <div class="fasilitas-kamar">
-
             <h3>Fasilitas</h3>
-
             <ul>
-
                 <li>Kasur Premium</li>
                 <li>AC</li>
                 <li>TV</li>
                 <li>WiFi Cepat</li>
                 <li>Lemari Besar</li>
                 <li>Kamar Mandi Dalam</li>
-
             </ul>
-
         </div>
 
-        <!-- BUTTON -->
         <a href="form-booking.html" class="pesan-btn" style="display: block; text-align: center; text-decoration: none;">Pesan Sekarang</a>
 
     </div>
 
 </section>
 
-<!-- FOOTER -->
 <footer>
-
     <div class="footer-content">
-
         <h2>Kost Yu</h2>
-
         <p>Nyaman • Aman • Terpercaya</p>
 
         <div class="footer-menu">
-
             <a href="index.html">Beranda</a>
             <a href="kamar.html">Kamar</a>
             <a href="ketentuan.html">Ketentuan</a>
@@ -169,10 +122,9 @@
         <p class="copyright">
             © 2025 Kost Yu. All Rights Reserved
         </p>
-
     </div>
-
 </footer>
+
 <script>
     function toggleMenu() {
         var navbar = document.getElementById("sidebar");
@@ -187,7 +139,6 @@
         dropdown.classList.toggle('open');
     }
 
-    // FIX LOGIKA SLIDER ARAH KIRI & KANAN
     function moveSlide(button, direction) {
         const slider = button.parentElement;
         const slidesContainer = slider.querySelector('.slider-slides');
@@ -203,9 +154,47 @@
         }
 
         slider.setAttribute('data-slide', currentSlide);
-        // Menggeser kontainer sesuai index slide (0, -100%, -200%, dst)
         slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
     }
+
+    // ========================================================
+    // AMBIL KETERSEDIAAN KAMAR TIPE D DI DATABASE
+    // ========================================================
+    async function muatKetersediaanKamar() {
+        try {
+            // Memanggil endpoint khusus data Tipe D
+            const respon = await fetch('/api/kamar/detail/D');
+            const dataKamar = await respon.json();
+            
+            const containerKamar = document.getElementById('daftar-kamar');
+            containerKamar.innerHTML = ''; // Membersihkan teks loading bawaan
+            
+            dataKamar.forEach(kamar => {
+                let classStatus = '';
+                let teksStatus = '';
+
+                if (kamar.status === 'Kosong') {
+                    classStatus = 'tersedia';  // Hijau
+                    teksStatus = 'Tersedia';
+                } else {
+                    classStatus = 'penuh';     // Merah
+                    teksStatus = 'Penuh';
+                }
+
+                // Masukkan komponen kotak status kamar dinamis
+                containerKamar.innerHTML += `
+                    <div class="kamar-status ${classStatus}">
+                        ${kamar.nomor_kamar} • ${teksStatus}
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error("Gagal mengambil status kamar tipe D:", error);
+        }
+    }
+
+    // Jalankan fungsi setelah seluruh halaman HTML selesai dimuat
+    window.addEventListener('DOMContentLoaded', muatKetersediaanKamar);
 </script>
 </body>
 </html>

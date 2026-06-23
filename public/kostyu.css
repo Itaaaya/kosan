@@ -522,9 +522,9 @@ nav a:hover {
 /* ==================================================================
    10. HALAMAN DETAIL KAMAR & FORM BOOKING
    ================================================================== */
-.detail-kamar { width: 90%; margin: 70px auto; display: grid; grid-template-columns: 1.2fr 1fr; gap: 50px; }
+.detail-kamar { width: 90%; max-width: 1150px; margin: 70px auto; display: grid; grid-template-columns:1.2fr 1fr; gap: 40px; }
 .main-image { width: 100%; height: 500px; object-fit: cover; border-radius: 20px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
-.thumbnail-container { margin-top: 20px; display: flex; gap: 15px; flex-wrap: wrap; }
+.thumbnail-container { margin-top: 20px; display: flex; gap: 15px; flex-wrap: nowrap; }
 .thumbnail-container img { width: 90px; height: 90px; object-fit: cover; border-radius: 12px; cursor: pointer; transition: 0.3s; }
 .thumbnail-container img:hover { transform: scale(1.08); }
 
@@ -542,8 +542,8 @@ nav a:hover {
     border-radius: 14px; font-size: 18px; font-weight: 500; cursor: pointer; transition: 0.3s;
 }
 .pesan-btn:hover { background: #0000cc; }
-.kamar-list { display: flex; flex-wrap: wrap; gap: 15px; }
-.kamar-status { padding: 12px 18px; border-radius: 12px; font-weight: 500; font-size: 15px; }
+.kamar-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.kamar-status { padding: 10px 14px; border-radius: 12px; font-weight: 500; font-size: 14px; }
 .kamar-status.tersedia { background: #d4f8d4; color: green; }
 .kamar-status.penuh { background: #ffd6d6; color: #c40000; }
 
@@ -556,7 +556,11 @@ nav a:hover {
 .form-group label { font-size: 14px; font-weight: 400; color: #4a5568; margin-bottom: 8px; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 14px; border: 1px solid #cbd5e0; border-radius: 8px; font-size: 14px; outline: none; transition: all 0.3s ease; }
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #0a0a88; box-shadow: 0 0 5px rgba(10, 10, 136, 0.2); }
-.form-row { display: flex; gap: 20px; }
+.form-row { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 0; 
+}
 .btn-submit-booking { width: 100%; padding: 15px; background-color: #0a0a88; color: #ffffff; border: none; border-radius: 10px; font-size: 16px; font-weight: 500; cursor: pointer; transition: background-color 0.3s ease; margin-top: 25px; }
 .btn-submit-booking:hover { background-color: #0000cc; }
 
@@ -581,18 +585,84 @@ nav a:hover {
 /* ==================================================================
    12. DASHBOARD USER & ADMIN
    ================================================================== */
-.dashboard-header { background-color: #1f3846; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-.logo-dash h1 { color: #ffffff; font-size: 24px; font-weight: 400; }
-.logo-dash h1 span { font-size: 16px; font-weight: 300; color: #f5edd3; }
-.dashboard-header nav a { color: #ffffff !important; text-decoration: none; margin-left: 20px; font-size: 15px; }
-.dashboard-header .logout-btn { background-color: #e53e3e; padding: 8px 18px; border-radius: 8px; font-weight: 500; transition: 0.3s; }
-.dashboard-header .logout-btn:hover { background-color: #c53030; }
-.dashboard-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+.dashboard-header { 
+    background-color: #000000 !important; 
+    padding: 15px 40px !important; 
+    display: flex !important; 
+    justify-content: space-between !important; 
+    align-items: center !important; 
+    
+    /* JURUS KUNCI KANAN KIRI (ANTI BABLAS) */
+    position: fixed !important; 
+    top: 0 !important;
+    left: 0 !important;    /* Dikunci di ujung kiri */
+    right: 0 !important;   /* Dikunci di ujung kanan */
+    width: auto !important; /* Ubah ke auto biar ukurannya ngikutin kiri-kanan */
+    z-index: 9999 !important;    
+    box-sizing: border-box !important;
+}
+
+.logo-dash {
+    display: flex;
+    flex-direction: column; 
+    gap: 4px;
+}
+
+.logo-dash h1 { 
+    color: #ffffff !important; 
+    font-size: 26px !important; 
+    margin: 0 !important; 
+    font-weight: 600 !important; 
+}
+
+/* Digabung agar teks subtitle Admin maupun Penghuni warnanya sama */
+.logo-dash .admin-subtitle,
+.logo-dash .penghuni-subtitle { 
+    font-size: 14px !important; 
+    font-weight: 400 !important; 
+    color: #d8c48a !important; 
+    margin: 0 !important;
+}
+
+.dashboard-header nav {  
+    display: flex;  
+    align-items: center;  
+}
+
+.dashboard-header nav a { color: #ffffff !important; text-decoration: none; margin-left: 0px; font-size: 15px;  padding: 8px 14px;border-radius: 8px;transition: 0.3s; }
+.dashboard-header nav a:hover {  background: rgba(255,255,255,0.12); } 
+.dashboard-header nav a.active { background: rgba(255,255,255,0.18); color: #e5d39b !important;  }
+
+.dashboard-header .logout-btn { 
+    color: #ffffff !important;
+    text-decoration: none !important;
+    background-color: #e53e3e !important; 
+    padding: 10px 20px !important; 
+    border-radius: 8px !important; 
+    font-weight: 500 !important; 
+    font-size: 15px !important;
+    transition: 0.3s; 
+}
+.dashboard-header .logout-btn:hover { 
+    background-color: #c53030 !important; 
+}
+
+/* Ditambahkan margin-top 120px agar konten tidak ketutupan header hitam */
+.dashboard-container { 
+    max-width: 1000px; 
+    margin: 120px auto 40px auto !important; 
+    padding: 0 20px; 
+}
 .welcome-section { margin-bottom: 30px; }
 .welcome-section h2 { color: #1f3846; font-size: 28px; font-weight: 400; }
 .welcome-section p { color: #718096; font-size: 15px; margin-top: 5px; }
 .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-.dash-card { background-color: #ffffff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+.dash-card { 
+    background-color: #ffffff; 
+    padding: 30px; /* <--- Ini yang dibenarkan */
+    border-radius: 12px; 
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+}
 .dash-card h3 { color: #0a0a88; margin-bottom: 20px; font-size: 20px; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; font-weight: 400; }
 .status-tagihan { display: inline-block; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 500; margin-bottom: 15px; }
 .status-tagihan.belum-lunas { background-color: #fed7d7; color: #c53030; }
@@ -691,7 +761,7 @@ footer {
     .hero { height: 350px; }
     .hero-text h1 { font-size: 28px; }
     .hero-text p { font-size: 18px; }
-    .kontak-container, .dashboard-grid, .detail-kamar, .tentang-kost { flex-direction: column; }
+    .kontak-container, .dashboard-grid, .tentang-kost { flex-direction: column; }
     .map-box { height: 300px; }
     .tentang-kost img { width: 100%; }
 
@@ -745,4 +815,106 @@ footer {
         width: 100% !important;
         box-sizing: border-box !important;
     }
+    header #sidebar a.login-btn {
+        background: #0000cc !important; 
+        color: #ffffff !important; 
+        text-align: left !important; 
+        border-radius: 8px !important;
+    }
+
+    /* KODE DI BAWAH INI SEBELUMNYA NYASAR KE LUAR, SEKARANG SUDAH DIMASUKKAN KE DALAM @MEDIA */
+    .detail-kamar {
+        grid-template-columns: 1fr;
+        gap: 25px;
+        width: 92%;
+    }
+    .main-image { height: 280px; }
+    .detail-info { padding: 25px; }
+    .detail-info h1 { font-size: 32px; }
+    .harga { font-size: 24px; }
+    .thumbnail-container { justify-content: center; }
+    .thumbnail-container img { width: 65px; height: 65px; }
+    
+    .login-page-wrapper .login-container {
+        width: 88%;
+        max-width: 320px;
+        padding: 30px 22px;
+    }
+    .login-page-wrapper .login-container h2 { font-size: 22px; margin-bottom: 22px; }
+    .login-page-wrapper .input-group input { padding: 12px 14px; font-size: 14px; }
+    .login-page-wrapper .btn-login-submit { padding: 12px; font-size: 15px; }
+    .login-page-wrapper .switch-text { font-size: 13px; }
 }
+.dashboard-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:nowrap;
+    padding:15px 20px;
+}
+
+.logo-dash h1{
+    font-size:20px;
+    white-space:nowrap;
+}
+
+.logo-dash h1 span{
+    display:inline;
+    font-size:16px;
+}
+
+.dashboard-header nav{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    flex-wrap:nowrap;
+}
+
+.dashboard-header nav a{
+    margin:0;
+    font-size:14px;
+    white-space:nowrap;
+}
+
+.dashboard-header .logout-btn{
+    padding:8px 14px;
+}
+
+  .login-page-wrapper .login-container{
+        width: 88%;
+        max-width: 320px;
+        padding: 30px 22px;
+    }
+
+    .login-page-wrapper .login-container h2{
+        font-size: 22px;
+        margin-bottom: 22px;
+    }
+
+    .login-page-wrapper .input-group input{
+        padding: 12px 14px;
+        font-size: 14px;
+    }
+    .login-page-wrapper .btn-login-submit{
+        padding: 12px;
+        font-size: 15px;
+    }
+
+    .login-page-wrapper .switch-text{
+        font-size: 13px;
+    }
+    .dashboard-grid { 
+        grid-template-columns: 1fr !important; 
+        gap: 20px !important; 
+    }
+
+    /* Mengurangi padding kartu biar teksnya punya ruang lebih luas */
+    .dash-card { 
+        padding: 20px !important; 
+    }
+    
+    /* Memastikan nominal uang tidak terpotong text-wrap nya */
+    .detail-tagihan .nominal {
+        font-size: 28px !important;
+        white-space: nowrap; 
+    }

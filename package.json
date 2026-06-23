@@ -1,0 +1,26 @@
+{
+  "name": "kostyu",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Itaaaya/kostyu.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Itaaaya/kostyu/issues"
+  },
+  "homepage": "https://github.com/Itaaaya/kostyu#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.2.0",
+    "mysql2": "^3.22.5"
+  }
+}

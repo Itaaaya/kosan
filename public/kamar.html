@@ -48,7 +48,7 @@
     <h2>Tipe Kamar</h2>
 </div>
 
-<div class="kamar-container">
+<div class="kamar-container" id="daftar-kamar">
 
     <!-- 1. KAMAR TIPE A -->
     <div class="kamar-card">
@@ -170,6 +170,80 @@
         // Menggeser kontainer sesuai index slide (0, -100%, -200%, dst)
         slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
     }
+    // ==========================================
+    // FUNGSI TARIK DATA DARI DATABASE (API)
+    // ==========================================
+
+async function muatDataKamar() {
+        try {
+            // 1. Ambil data 20 kamar dari API
+            const respon = await fetch('/api/kamar');
+            const seluruhKamar = await respon.json();
+            
+            // 2. Ambil container HTML kamu
+            const kontainer = document.getElementById('daftar-kamar');
+            kontainer.innerHTML = ''; // Kosongkan layar dulu
+            
+            // 3. LOGIKA SAKTI: Kita kelompokkan 20 data tadi berdasarkan Tipe Kamar
+            const ringkasanKamar = {};
+            
+            seluruhKamar.forEach(kamar => {
+                const tipe = kamar.tipe_kamar;
+                
+                if (!ringkasanKamar[tipe]) {
+                    // Kalau tipenya belum terdaftar, kita buat data dasarnya dulu
+                    ringkasanKamar[tipe] = {
+                        tipe_kamar: tipe,
+                        harga: kamar.harga,
+                        fasilitas: kamar.fasilitas,
+                        total_tersedia: 0
+                    };
+                }
+                
+                // Kalau statusnya 'Kosong', jumlah stok bertambah 1
+                if (kamar.status === 'Kosong') {
+                    ringkasanKamar[tipe].total_tersedia += 1;
+                }
+            });
+
+            // 4. Setelah dikelompokkan jadi 4 tipe, baru kita tampilkan ke HTML
+            Object.values(ringkasanKamar).forEach(kamar => {
+                // Format angka ke Rupiah
+                const hargaFormat = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(kamar.harga);
+                
+                // Ambil huruf terakhir (A, B, C, D) untuk file gambar & link detail
+                const hurufTipe = kamar.tipe_kamar.replace('Tipe ', ''); 
+                
+                // Template HTML yang sudah disesuaikan dengan class CSS asli kamu
+                const kartuKamar = `
+                    <div class="kamar-card">
+                        <div class="slider">
+                            <div class="slider-slides">
+                                <img src="PicKamar${hurufTipe}.jpeg" alt="${kamar.tipe_kamar}"> 
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3>${kamar.tipe_kamar}</h3>
+                            <p class="kamar-desc">
+                                Harga: <strong>${hargaFormat} / Bulan</strong><br>
+                                Tersedia: <strong>${kamar.total_tersedia} Kamar</strong><br>
+                                Fasilitas: ${kamar.fasilitas}
+                            </p>
+                            <a href="kamar${hurufTipe}.html"><button class="btn-detail">Lihat Detail</button></a>
+                        </div>
+                    </div>
+                `;
+                
+                kontainer.innerHTML += kartuKamar;
+            });
+        } catch (error) {
+            console.error('Gagal memuat data kamar:', error);
+            document.getElementById('daftar-kamar').innerHTML = '<p>Gagal memuat data dari database.</p>';
+        }
+    }
+
+    // Jalankan fungsi otomatis saat halaman dibuka
+    window.onload = muatDataKamar;
 </script>
 </body>
 </html>

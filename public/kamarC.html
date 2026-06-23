@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Kamar B - Kost Yu</title>
+    <title>Kamar C - Kost Yu</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -45,117 +45,71 @@
         <div class="overlay" onclick="toggleMenu()"></div>
     </header>
 
-<!-- DETAIL KAMAR -->
 <section class="detail-kamar">
 
-    <!-- BAGIAN KIRI -->
     <div class="gallery">
 
-        <!-- FOTO UTAMA -->
-        <img src="PicKamarB.jpeg" class="main-image" alt="">
+        <img src="PicKamarC.jpeg" class="main-image" alt="">
 
-        <!-- FOTO DETAIL -->
         <div class="thumbnail-container">
-
-            <img src="detailB1.jpg" alt="">
-            <img src="detailB2.jpg" alt="">
-            <img src="detailB3.jpg" alt="">
-            <img src="detailB4.jpg" alt="">
-            <img src="detailB5.jpg" alt="">
-
+            <img src="detailC1.jpg" alt="">
+            <img src="detailC2.jpg" alt="">
+            <img src="detailC3.jpg" alt="">
+            <img src="detailC4.jpg" alt="">
+            <img src="detailC5.jpg" alt="">
         </div>
 
-        <!-- KETERSEDIAAN -->
         <div class="ketersediaan">
-
             <h3>Ketersediaan Kamar</h3>
 
-            <div class="kamar-list">
-
-                <div class="kamar-status tersedia">
-                    B1 • Tersedia
-                </div>
-
-                <div class="kamar-status penuh">
-                    B2 • Penuh
-                </div>
-
-                <div class="kamar-status tersedia">
-                    B3 • Tersedia
-                </div>
-
-                <div class="kamar-status tersedia">
-                    B4 • Tersedia
-                </div>
-
-                <div class="kamar-status penuh">
-                    B5 • Penuh
-                </div>
-
+            <div class="kamar-list" id="daftar-kamar">
+                <span style="color: #888; font-style: italic;">Memuat status kamar...</span>
             </div>
-
         </div>
 
     </div>
 
-    <!-- BAGIAN KANAN -->
     <div class="detail-info">
 
-        <h1>Kamar Tipe B</h1>
+        <h1>Kamar Tipe C</h1>
 
         <p class="harga">
             Rp 1.500.000 / bulan
         </p>
 
-        <!-- DESKRIPSI -->
         <div class="deskripsi">
-
             <h3>Deskripsi Kamar</h3>
-
             <p>
-                Kamar tipe B memiliki ukuran lebih luas
-                dengan desain modern dan nyaman untuk
-                mahasiswa maupun pekerja.
+                Kamar tipe C memiliki desain modern,
+                elegan, dan nyaman dengan fasilitas
+                lengkap untuk menunjang aktivitas sehari-hari.
             </p>
-
         </div>
 
-        <!-- FASILITAS -->
         <div class="fasilitas-kamar">
-
             <h3>Fasilitas</h3>
-
             <ul>
-
-                <li>Kasur</li>
+                <li>Kasur Premium</li>
                 <li>AC</li>
-                <li>Lemari</li>
-                <li>WiFi</li>
+                <li>TV</li>
+                <li>WiFi Cepat</li>
                 <li>Meja Belajar</li>
                 <li>Kamar Mandi Dalam</li>
-
             </ul>
-
         </div>
 
         <a href="form-booking.html" class="pesan-btn" style="display: block; text-align: center; text-decoration: none;">Pesan Sekarang</a>
-
 
     </div>
 
 </section>
 
-<!-- FOOTER -->
 <footer>
-
     <div class="footer-content">
-
         <h2>Kost Yu</h2>
-
         <p>Nyaman • Aman • Terpercaya</p>
 
         <div class="footer-menu">
-
             <a href="index.html">Beranda</a>
             <a href="kamar.html">Kamar</a>
             <a href="ketentuan.html">Ketentuan</a>
@@ -167,10 +121,9 @@
         <p class="copyright">
             © 2025 Kost Yu. All Rights Reserved
         </p>
-
     </div>
-
 </footer>
+
 <script>
     function toggleMenu() {
         var navbar = document.getElementById("sidebar");
@@ -185,7 +138,6 @@
         dropdown.classList.toggle('open');
     }
 
-    // FIX LOGIKA SLIDER ARAH KIRI & KANAN
     function moveSlide(button, direction) {
         const slider = button.parentElement;
         const slidesContainer = slider.querySelector('.slider-slides');
@@ -201,9 +153,47 @@
         }
 
         slider.setAttribute('data-slide', currentSlide);
-        // Menggeser kontainer sesuai index slide (0, -100%, -200%, dst)
         slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
     }
+
+    // ========================================================
+    // AMBIL KETERSEDIAAN KAMAR TIPE C DI DATABASE
+    // ========================================================
+    async function muatKetersediaanKamar() {
+        try {
+            // Memanggil endpoint khusus data Tipe C
+            const respon = await fetch('/api/kamar/detail/C');
+            const dataKamar = await respon.json();
+            
+            const containerKamar = document.getElementById('daftar-kamar');
+            containerKamar.innerHTML = ''; // Menghilangkan teks loading bawaan
+            
+            dataKamar.forEach(kamar => {
+                let classStatus = '';
+                let teksStatus = '';
+
+                if (kamar.status === 'Kosong') {
+                    classStatus = 'tersedia';  // Hijau
+                    teksStatus = 'Tersedia';
+                } else {
+                    classStatus = 'penuh';     // Merah
+                    teksStatus = 'Penuh';
+                }
+
+                // Append item kamar dinamis
+                containerKamar.innerHTML += `
+                    <div class="kamar-status ${classStatus}">
+                        ${kamar.nomor_kamar} • ${teksStatus}
+                    </div>
+                `;
+            });
+        } catch (error) {
+            console.error("Gagal mengambil status kamar tipe C:", error);
+        }
+    }
+
+    // Panggil fungsi secara otomatis begitu DOM siap
+    window.addEventListener('DOMContentLoaded', muatKetersediaanKamar);
 </script>
 </body>
 </html>
