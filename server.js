@@ -6,6 +6,10 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Agar Express bisa membaca data JSON dan Form dari Frontend
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 // Konfigurasi tempat dan nama file yang di-upload oleh Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -18,23 +22,31 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// 1. KONEKSI KE DATABASE XAMPP
-const db = mysql.createConnection({
+// ==========================================
+// 1. KONEKSI KE DATABASE AIVEN (PAKAI POOL)
+// ==========================================
+const db = mysql.createPool({
     host: "mysql-3ef31308-itaa.h.aivencloud.com",
     port: 21505,
     user: "avnadmin",
-    password: "AVNS_KTS-uu7yNx2MenbhqpF", // <--- Pastikan password ini sesuai dengan yang kamu salin dari Aiven
+    password: "AVNS_KTS-uu7yNx2MenbhqpF", 
     database: "defaultdb",
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
     ssl: {
-        rejectUnauthorized: false // <--- WAJIB TAMBAHKAN BARIS INI agar koneksinya aman & diterima Aiven
+        rejectUnauthorized: false // WAJIB untuk cloud
     }
 });
-db.connect((err) => {
+
+// Cek apakah Pool berhasil terhubung
+db.getConnection((err, connection) => {
     if (err) {
         console.error('Gagal konek database Aiven:', err);
         return;
     }
-    console.log('Database Aiven Cloud Terhubung!');
+    console.log('Database Aiven Cloud Terhubung dengan Mantap (Anti Putus)!');
+    connection.release(); // Kembalikan koneksi agar tidak nyangkut
 });
 
 // Middleware untuk membaca folder "public" secara otomatis
@@ -47,7 +59,45 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 3. API RINGKASAN KAMAR: Mengelompokkan 20 kamar menjadi 4 tipe untuk halaman utama (kamar.html)
+// ==========================================
+// 🚀 FITUR BARU: API LOGIN
+// ==========================================
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+
+    // Cari user berdasarkan username di tabel users
+    db.query('SELECT * FROM users WHERE username = ?', [username], (err, results) => {
+        if (err) {
+            console.error("Error saat login:", err);
+            return res.status(500).json({ success: false, message: 'Server database error' });
+        }
+
+        // Jika username tidak ditemukan
+        if (results.length === 0) {
+            return res.status(401).json({ success: false, message: 'Username atau password salah!' });
+        }
+
+        const user = results[0];
+
+        // Cek cocok tidaknya password
+        if (password !== user.password) {
+            return res.status(401).json({ success: false, message: 'Username atau password salah!' });
+        }
+
+        // JIKA BERHASIL: Kirim role-nya ke frontend
+        res.json({
+            success: true,
+            message: 'Login berhasil!',
+            user: {
+                id: user.id,
+                nama: user.nama_lengkap,
+                role: user.role
+            }
+        });
+    });
+});
+
+// 3. API RINGKASAN KAMAR
 app.get('/api/kamar', (req, res) => {
     const sql = "SELECT * FROM kamar"; 
     db.query(sql, (err, result) => {
@@ -60,7 +110,7 @@ app.get('/api/kamar', (req, res) => {
     });
 });
 
-// 4. API DETAIL KAMAR: Mengambil daftar nomor kamar spesifik (Misal: A1-A5) untuk dropdown Form Booking
+// 4. API DETAIL KAMAR (Dropdown Form Booking)
 app.get('/api/kamar/detail/:tipe', (req, res) => {
     const tipeKamar = 'Tipe ' + req.params.tipe; 
     const sql = "SELECT nomor_kamar, harga, fasilitas, status FROM kamar WHERE tipe_kamar = ?";
@@ -75,52 +125,40 @@ app.get('/api/kamar/detail/:tipe', (req, res) => {
     });
 });
 
-// 5. API PROSES FORM BOOKING & UPLOAD FILE KTP/KK
+// 5. API PROSES FORM BOOKING 
 app.post('/api/booking', upload.fields([{ name: 'foto_ktp' }, { name: 'foto_kk' }]), (req, res) => {
     const data = req.body;
     
-    // Mengambil nama file baru yang di-generate oleh multer
     const namaFileKtp = req.files['foto_ktp'] ? req.files['foto_ktp'][0].filename : '';
     const namaFileKk = req.files['foto_kk'] ? req.files['foto_kk'][0].filename : '';
 
-    // A. Masukkan biodata pengunjung ke tabel penghuni
-    const sqlPenghuni = `
-        INSERT INTO penghuni (nama_lengkap, nomor_wa, email, alamat_asal, nama_darurat, nomor_darurat, foto_ktp, foto_kk, metode_pembayaran) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    const idUserSementaran = data.id_user || 1; 
+
+    const sqlBooking = `
+        INSERT INTO booking (id_user, tipe_kamar, nomor_kamar, nama_lengkap, nomor_wa, email, alamat_asal, nama_darurat, nomor_darurat, metode_pembayaran, foto_ktp, foto_kk) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     
-    const nilaiPenghuni = [
-        data.nama_lengkap, data.nomor_wa, data.email, data.alamat_asal, 
-        data.nama_darurat, data.nomor_darurat, namaFileKtp, namaFileKk, data.metode_pembayaran
+    const nilaiBooking = [
+        idUserSementaran, data.tipe_kamar, data.nomor_kamar, data.nama_lengkap, 
+        data.nomor_wa, data.email, data.alamat_asal, data.nama_darurat, 
+        data.nomor_darurat, data.metode_pembayaran, namaFileKtp, namaFileKk
     ];
 
-    db.query(sqlPenghuni, nilaiPenghuni, (err, hasilPenghuni) => {
+    db.query(sqlBooking, nilaiBooking, (err) => {
         if (err) {
-            console.error("Gagal simpan data penghuni:", err);
-            return res.status(500).send("Gagal memproses pendaftaran bulanan.");
+            console.error("Gagal simpan data booking:", err);
+            return res.status(500).send("Gagal memproses booking kamar.");
         }
 
-        const idPenghuniBaru = hasilPenghuni.insertId; // Dapetin ID otomatis si penghuni baru
-
-        // B. KONEKSIKAN KE KAMAR: Ubah status kamar pilihan dari 'Kosong' jadi 'Terisi'
-        const sqlKamar = "UPDATE kamar SET status = 'Terisi', id_penghuni = ? WHERE nomor_kamar = ?";
-        
-        db.query(sqlKamar, [idPenghuniBaru, data.nomor_kamar], (errKamar) => {
-            if (errKamar) {
-                console.error("Gagal update status kamar:", errKamar);
-                return res.status(500).send("Data tersimpan, tapi gagal mengunci kamar.");
-            }
-            
-            // Respon sukses halaman
-            res.send(`
-                <div style="text-align: center; margin-top: 50px; font-family: 'Poppins', sans-serif;">
-                    <h2 style="color: #2e7d32;">🎉 PEMESANAN KAMAR BERHASIL! 🎉</h2>
-                    <p>Data diri Anda dan berkas digital telah aman tersimpan di sistem Kost Yu.</p>
-                    <br>
-                    <a href="/kamar.html" style="padding: 10px 20px; background-color: #002060; color: white; text-decoration: none; border-radius: 5px;">Kembali ke Beranda</a>
-                </div>
-            `);
-        });
+        res.send(`
+            <div style="text-align: center; margin-top: 50px; font-family: 'Poppins', sans-serif;">
+                <h2 style="color: #2e7d32;">🎉 PEMESANAN KAMAR BERHASIL! 🎉</h2>
+                <p>Data diri Anda dan berkas digital telah aman tersimpan di sistem Kost Yu.</p>
+                <br>
+                <a href="/kamar.html" style="padding: 10px 20px; background-color: #002060; color: white; text-decoration: none; border-radius: 5px;">Kembali ke Beranda</a>
+            </div>
+        `);
     });
 });
 

@@ -15,16 +15,18 @@
             <!-- ================= FORM LOGIN ================= -->
             <div id="box-login">
                 <h2>Masuk Akun</h2>
-                <form id="formLogin">
+                <!-- 1. ID Form disamakan menjadi loginForm -->
+                <form id="loginForm">
                     <div class="input-group">
                         <input type="text" id="username" placeholder="Username" required>
                     </div>
                     <div class="input-group">
-                        <input type="password" placeholder="Password" required>
+                        <!-- 2. Tambahkan id="password" di bawah ini -->
+                        <input type="password" id="password" placeholder="Password" required>
                     </div>
                     
-                    <!-- Tombol Login -->
-                    <button type="button" onclick="prosesLogin()" class="btn-login-submit">Login</button>
+                    <!-- 3. Ganti type menjadi submit agar fungsi fetch berjalan otomatis -->
+                    <button type="submit" class="btn-login-submit">Login</button>
                 </form>
 
                 <div class="switch-text">
@@ -33,7 +35,7 @@
             </div>
 
             <!-- ================= FORM DAFTAR ================= -->
-            <div id="box-daftar" style="display: none;"> <!-- Sembunyi secara otomatis -->
+            <div id="box-daftar" style="display: none;">
                 <h2>Daftar Akun</h2>
                 <form>
                     <div class="input-group">
@@ -46,7 +48,6 @@
                         <input type="password" placeholder="Buat Password" required>
                     </div>
                     
-                    <!-- Tombol Daftar -->
                     <button type="button" class="btn-login-submit" onclick="alert('Pendaftaran berhasil! Silakan masuk menggunakan akun baru Anda.')">Daftar</button>
                 </form>
 
@@ -59,32 +60,62 @@
     </div>
 
     <!-- SCRIPT PENGATUR LOGIKA & TOMBOL -->
-    <script>
-        // 1. Script untuk proses pengecekan role (Admin/Penghuni/Pengunjung)
-        function prosesLogin() {
-            var user = document.getElementById("username").value.toLowerCase();
-            
-            if (user === "admin") {
-                alert("Login berhasil sebagai Admin!");
-                window.location.href = "dashboard-admin.html";
-            } else if (user === "penghuni" || user === "budi") {
-                alert("Login berhasil. Selamat datang di Dashboard Penghuni!");
-                window.location.href = "dashboard-penghuni.html";
-            } else if (user !== "") {
-                alert("Login berhasil. Kembali ke Beranda.");
-                window.location.href = "index.html";
-            } else {
-                alert("Username tidak boleh kosong!");
-            }
+<script>
+        const loginForm = document.getElementById('loginForm');
+
+        if (loginForm) {
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault(); // Mencegah halaman reload otomatis
+
+                const usernameInput = document.getElementById('username').value;
+                const passwordInput = document.getElementById('password').value;
+
+                try {
+                    // Kirim data login ke API Server Node.js kita
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: usernameInput,
+                            password: passwordInput
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    // === JIKA BERHASIL (KODE INI YANG SEMPAT HILANG) ===
+                    if (data.success) {
+                        alert('🎉 ' + data.message);
+                        
+                        // Pengecekan Role & Pengalihan Halaman
+                        if (data.user.role === 'admin') {
+                            window.location.href = '/dashboard-admin.html'; 
+                        } else if (data.user.role === 'penghuni') {
+                            window.location.href = '/dashboard-penghuni.html'; 
+                        } else {
+                            window.location.href = '/index.html'; 
+                        }
+                    } else {
+                        // Jika password atau username salah di database
+                        alert('❌ ' + data.message);
+                    }
+
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Terjadi kesalahan pada sistem server.');
+                }
+            });
         }
 
-        // 2. Script untuk memunculkan form Daftar dan menyembunyikan form Login
+        // Script untuk memunculkan form Daftar dan menyembunyikan form Login
         function tampilkanDaftar() {
             document.getElementById("box-login").style.display = "none";
             document.getElementById("box-daftar").style.display = "block";
         }
 
-        // 3. Script untuk memunculkan form Login dan menyembunyikan form Daftar
+        // Script untuk memunculkan form Login dan menyembunyikan form Daftar
         function tampilkanLogin() {
             document.getElementById("box-daftar").style.display = "none";
             document.getElementById("box-login").style.display = "block";
