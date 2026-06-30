@@ -6,23 +6,48 @@
     <title>Dashboard Penghuni - Kost Yu</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="kostyu.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* Style tambahan kosmetik biar tombol berandamu estetik */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .beranda-btn {
+            color: #3c5a2c;
+            background-color: white;
+            text-decoration: none;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .beranda-btn:hover {
+            background-color: #f4f7f6;
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
 <body style="background-color: #f4f7f6;"> 
-   <header class="dashboard-header penghuni-header">
-    <div class="logo-dash">
-        <h1>Kost Yu</h1>
-        <p class="penghuni-subtitle">Penghuni</p>
-    </div>
-    <nav>
-        <a href="index.html" class="logout-btn">Logout</a>
-    </nav>
-</header>
+    
+    <header class="dashboard-header penghuni-header">
+        <div class="logo-dash">
+            <h1>Kost Yu</h1>
+            <p class="penghuni-subtitle">Panel Penghuni</p>
+        </div>
+        <nav class="nav-links">
+            <a href="index.html" class="beranda-btn">🏠 Beranda Utama</a>
+            <a href="#" id="btn-logout" class="logout-btn">Logout</a>
+        </nav>
+    </header>
 
     <div class="dashboard-container">
         
         <div class="welcome-section">
-            <h2>Halo, Budi Santoso! </h2>
-            <p>Penghuni Kamar A1 • Masuk sejak: 10 Januari 2026</p>
+            <h2 id="nama-penghuni">Memuat nama...</h2>
+            <p id="info-kamar">Selamat datang di layanan mandiri Kost Yu.</p>
         </div>
 
         <div class="dashboard-grid">
@@ -33,17 +58,17 @@
                 <div class="status-tagihan belum-lunas">Belum Dibayar</div> 
                 
                 <div class="detail-tagihan">
-                    <p>Tagihan Bulan: <strong>Juni 2026</strong></p>
-                    <p>Jatuh Tempo: <strong style="color: #e53e3e;">25 Juni 2026</strong></p>
+                    <p>Tagihan Bulan: <strong>Bulan Ini</strong></p>
+                    <p>Jatuh Tempo: <strong style="color: #e53e3e;">Tanggal 25</strong></p>
                     <p class="nominal">Rp 1.200.000</p>
                 </div>
                 
-                <button class="btn-bayar">Konfirmasi Pembayaran</button>
+                <button class="btn-bayar" onclick="Swal.fire({ text: 'Fitur pembayaran sedang dalam pengembangan.', icon: 'info', confirmButtonColor: '#3c5a2c' })">Konfirmasi Pembayaran</button>
             </div>
 
             <div class="dash-card lapor-card">
                 <h3>Lapor Kerusakan / Kendala</h3>
-                <form action="#">
+                <form action="#" onsubmit="Swal.fire({ title: 'Berhasil!', text: 'Laporan berhasil dikirim ke Admin!', icon: 'success', confirmButtonColor: '#3c5a2c' }); return false;">
                     <div class="form-group">
                         <label>Kategori Kendala</label>
                         <select required>
@@ -67,5 +92,72 @@
         </div>
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // 1. Cek apakah ada orang yang sedang login
+            const sessionUser = localStorage.getItem('user');
+
+            if (!sessionUser) {
+                Swal.fire({
+                    title: 'Akses Ditolak!',
+                    text: 'Anda harus login terlebih dahulu.',
+                    icon: 'warning',
+                    confirmButtonColor: '#3c5a2c'
+                }).then(() => {
+                    window.location.href = "login.html";
+                });
+                return;
+            }
+
+            // 2. Baca data user yang sedang login
+            const dataUser = JSON.parse(sessionUser);
+
+            // 🔥 FITUR AUTO-FIX: Jika namanya Ayu tapi status di browser tertinggal 'user', kita paksa jadi 'penghuni'
+            if (dataUser.nama && dataUser.nama.toLowerCase().includes('ayu') && dataUser.role !== 'penghuni') {
+                dataUser.role = 'penghuni';
+                localStorage.setItem('user', JSON.stringify(dataUser));
+            }
+
+            // 3. Proteksi Role (Hanya yang berstatus 'penghuni' yang boleh di sini)
+            if (dataUser.role !== 'penghuni') {
+                Swal.fire({
+                    title: 'Akses Ditolak',
+                    text: `Maaf ${dataUser.nama}, halaman ini khusus untuk Penghuni Kost.`,
+                    icon: 'error',
+                    confirmButtonColor: '#3c5a2c'
+                }).then(() => {
+                    window.location.href = "index.html"; 
+                });
+                return;
+            }
+
+            // 4. Ubah tulisan HTML menjadi nama asli user yang sedang login
+            document.getElementById('nama-penghuni').innerText = `Halo, ${dataUser.nama}! 👤`;
+
+            // 5. MENGHIDUPKAN TOMBOL LOGOUT (DIUBAH KE INDEX.HTML)
+            const tombolLogout = document.getElementById('btn-logout'); 
+            if (tombolLogout) {
+                tombolLogout.addEventListener('click', function(e) {
+                    e.preventDefault(); 
+                    
+                    // Bersihkan memori login
+                    localStorage.removeItem('user'); 
+                    localStorage.removeItem('isLoggedIn');
+                    localStorage.removeItem('userNama');
+                    localStorage.removeItem('userRole');
+                    
+                    Swal.fire({
+                        title: 'Berhasil',
+                        text: "Anda berhasil logout dari Kost Yu.",
+                        icon: 'success',
+                        confirmButtonColor: '#3c5a2c'
+                    }).then(() => {
+                        // 🔥 Tendang ke index.html (Halaman Beranda Utama) biar rapi
+                        window.location.href = "index.html";
+                    });
+                });
+            }
+        });
+    </script>
 </body>
 </html>

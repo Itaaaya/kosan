@@ -12,20 +12,16 @@
     <div class="login-page-wrapper">
         <div class="login-container">
             
-            <!-- ================= FORM LOGIN ================= -->
             <div id="box-login">
                 <h2>Masuk Akun</h2>
-                <!-- 1. ID Form disamakan menjadi loginForm -->
                 <form id="loginForm">
                     <div class="input-group">
                         <input type="text" id="username" placeholder="Username" required>
                     </div>
                     <div class="input-group">
-                        <!-- 2. Tambahkan id="password" di bawah ini -->
                         <input type="password" id="password" placeholder="Password" required>
                     </div>
                     
-                    <!-- 3. Ganti type menjadi submit agar fungsi fetch berjalan otomatis -->
                     <button type="submit" class="btn-login-submit">Login</button>
                 </form>
 
@@ -34,21 +30,20 @@
                 </div>
             </div>
 
-            <!-- ================= FORM DAFTAR ================= -->
             <div id="box-daftar" style="display: none;">
                 <h2>Daftar Akun</h2>
-                <form>
+                <form id="daftarForm">
                     <div class="input-group">
-                        <input type="text" placeholder="Nama Lengkap" required>
+                        <input type="text" id="regNama" placeholder="Nama Lengkap" required>
                     </div>
                     <div class="input-group">
-                        <input type="text" placeholder="Username Baru" required>
+                        <input type="text" id="regUsername" placeholder="Username Baru" required>
                     </div>
                     <div class="input-group">
-                        <input type="password" placeholder="Buat Password" required>
+                        <input type="password" id="regPassword" placeholder="Buat Password" required>
                     </div>
                     
-                    <button type="button" class="btn-login-submit" onclick="alert('Pendaftaran berhasil! Silakan masuk menggunakan akun baru Anda.')">Daftar</button>
+                    <button type="submit" class="btn-login-submit">Daftar</button>
                 </form>
 
                 <div class="switch-text">
@@ -59,68 +54,135 @@
         </div>
     </div>
 
-    <!-- SCRIPT PENGATUR LOGIKA & TOMBOL -->
-<script>
+    <div id="popup" class="popup" style="display: none;">
+        <div class="popup-content">
+            <span id="popup-message"></span>
+            <br><br>
+            <button onclick="tutupPopup()">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // LOGIKA LOGIN (SUDAH DI-FIX KE DASHBOARD PENGHUNI)
+        // ==========================================
         const loginForm = document.getElementById('loginForm');
 
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault(); // Mencegah halaman reload otomatis
+                e.preventDefault(); 
 
                 const usernameInput = document.getElementById('username').value;
                 const passwordInput = document.getElementById('password').value;
 
                 try {
-                    // Kirim data login ke API Server Node.js kita
                     const response = await fetch('/api/login', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            username: usernameInput,
-                            password: passwordInput
-                        })
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: usernameInput, password: passwordInput })
                     });
 
                     const data = await response.json();
 
-                    // === JIKA BERHASIL (KODE INI YANG SEMPAT HILANG) ===
                     if (data.success) {
-                        alert('🎉 ' + data.message);
-                        
-                        // Pengecekan Role & Pengalihan Halaman
+                        // 1. Simpan data session ke memori browser
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('userNama', data.user.nama);
+                        localStorage.setItem('userRole', data.user.role);
+                        localStorage.setItem('user', JSON.stringify(data.user)); 
+
+                        // 2. 🔥 GERBANG REDIRECT SUDAH DIARAHKAN KE FILE YANG BENAR
                         if (data.user.role === 'admin') {
-                            window.location.href = '/dashboard-admin.html'; 
+                            window.redirectUrl = 'dashboard-admin.html';
                         } else if (data.user.role === 'penghuni') {
-                            window.location.href = '/dashboard-penghuni.html'; 
+                            window.redirectUrl = 'dashboard-penghuni.html'; // <-- Diubah ke file dashboard asli kamu!
                         } else {
-                            window.location.href = '/index.html'; 
+                            // JIKA USER BIASA: Cek apakah ada catatan halaman tempat dia berasal tadi?
+                            const halamanTerakhir = localStorage.getItem('halamanTerakhir');
+
+                            if (halamanTerakhir && !halamanTerakhir.includes('login.html')) {
+                                localStorage.removeItem('halamanTerakhir'); 
+                                window.redirectUrl = halamanTerakhir;       
+                            } else {
+                                window.redirectUrl = 'index.html';          
+                            }
                         }
+
+                        tampilkanPopup(data.message);
                     } else {
-                        // Jika password atau username salah di database
-                        alert('❌ ' + data.message);
+                        window.redirectUrl = null; 
+                        tampilkanPopup(data.message);
                     }
 
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Terjadi kesalahan pada sistem server.');
+                    window.redirectUrl = null;
+                    tampilkanPopup('Terjadi kesalahan pada sistem server.');
                 }
             });
         }
 
-        // Script untuk memunculkan form Daftar dan menyembunyikan form Login
+        // ==========================================
+        // LOGIKA REGISTER
+        // ==========================================
+        const daftarForm = document.getElementById('daftarForm');
+        if (daftarForm) {
+            daftarForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const nama = document.getElementById('regNama').value;
+                const username = document.getElementById('regUsername').value;
+                const password = document.getElementById('regPassword').value;
+
+                try {
+                    const response = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nama_lengkap: nama, username: username, password: password })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        window.redirectUrl = null; 
+                        tampilkanPopup("Berhasil mendaftar! Silakan login menggunakan akun baru Anda.");
+                        tampilkanLogin(); 
+                    } else {
+                        window.redirectUrl = null;
+                        tampilkanPopup(data.message);
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    window.redirectUrl = null;
+                    tampilkanPopup('Terjadi kesalahan pada server saat mendaftar.');
+                }
+            });
+        }
+
+        // ==========================================
+        // FUNGSI TAMPILAN & POPUP
+        // ==========================================
         function tampilkanDaftar() {
             document.getElementById("box-login").style.display = "none";
             document.getElementById("box-daftar").style.display = "block";
         }
 
-        // Script untuk memunculkan form Login dan menyembunyikan form Daftar
         function tampilkanLogin() {
             document.getElementById("box-daftar").style.display = "none";
             document.getElementById("box-login").style.display = "block";
         }
-    </script>
 
+        function tampilkanPopup(pesan) {
+            document.getElementById("popup-message").textContent = pesan;
+            document.getElementById("popup").style.display = "flex";
+        }
+
+        function tutupPopup() {
+            document.getElementById("popup").style.display = "none";
+            if (window.redirectUrl) {
+                window.location.href = window.redirectUrl;
+            }
+        }
+    </script>
 </body>
 </html>

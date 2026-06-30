@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pembayaran Kost Yu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5edd3;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .pay-card {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            padding: 35px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .status-badge {
+            background-color: #ffe5e5;
+            color: #ff4d4d;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        .detail-box {
+            background-color: #f9f9f9;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 25px;
+        }
+        .detail-item {
+            margin: 8px 0;
+            font-size: 14px;
+            color: #444;
+        }
+        .detail-item strong {
+            color: #111;
+        }
+        .price-title {
+            font-size: 13px;
+            color: #777;
+            margin-bottom: 2px;
+        }
+        .price-amount {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin: 0 0 25px 0;
+        }
+        .divider {
+            border-top: 1px solid #eee;
+            margin: 25px 0;
+        }
+        .method-title {
+            font-weight: 600;
+            font-size: 16px;
+            color: #222;
+            margin-bottom: 15px;
+        }
+        .method-desc {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+            padding: 0 10px;
+        }
+        .bank-box {
+            background-color: #eef5ff;
+            border: 2px dashed #3b82f6;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        .rekening-num {
+            font-size: 22px;
+            font-weight: 700;
+            color: #1e40af;
+            letter-spacing: 1px;
+            margin: 5px 0;
+        }
+        .qris-img {
+            width: 220px;
+            height: 220px;
+            object-fit: contain;
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 8px;
+            background: white;
+            margin-top: 10px;
+        }
+        .btn-confirm {
+            background-color: #0b2447;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: 0.2s;
+        }
+        .btn-confirm:hover {
+            background-color: #19376d;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="pay-card">
+        <span class="status-badge">Belum Dibayar</span>
+        
+        <h2>Informasi Tagihan</h2>
+        
+        <div class="detail-box">
+            <div class="detail-item">Tipe Kamar: <strong id="lblTipe">-</strong></div>
+            <div class="detail-item">Nomor Kamar: <strong id="lblNomor">-</strong></div>
+            <div class="detail-item">Tanggal Masuk: <strong id="lblTanggal">-</strong></div>
+            <div class="detail-item">Durasi Sewa: <strong id="lblDurasi">-</strong></div>
+            <div class="detail-item">Metode Dipilih: <strong id="lblMetode">-</strong></div>
+        </div>
+
+        <p class="price-title" id="lblSubtitle">Total Pembayaran Kamar Baru:</p>
+        <h1 class="price-amount" id="lblHarga">Rp 0</h1>
+
+        <div class="divider"></div>
+
+        <div id="areaPembayaran">
+            </div>
+
+        <button class="btn-confirm" onclick="prosesKonfirmasi()">Konfirmasi Pembayaran</button>
+    </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // 1. Tangkap data dari localStorage milik form-booking
+        const harga = localStorage.getItem('tagihanHarga') || "Rp 0";
+        const tipe = localStorage.getItem('tagihanTipe') || "-";
+        const nomor = localStorage.getItem('tagihanNomor') || "-";
+        const tanggal = localStorage.getItem('tagihanTanggal') || "-";
+        const durasi = localStorage.getItem('tagihanDurasi') || "-";
+        
+        // Membaca metode pembayaran pilihan user (BCA / QRIS)
+        // Kita buat default "E-Wallet" jika tidak terbaca
+        let metode = "-";
+        try {
+            // Ambil dari data form HTML kalau tersimpan, atau buat pengecekan manual
+            const formPemesanan = document.getElementById('formPemesanan');
+            metode = localStorage.getItem('tagihanMetode') || "Transfer BCA"; 
+        } catch(e) {}
+
+        // 2. Tampilkan ke teks struktur HTML
+        document.getElementById('lblTipe').textContent = tipe;
+        document.getElementById('lblNomor').textContent = "Kamar " + nomor;
+        document.getElementById('lblTanggal').textContent = tanggal;
+        document.getElementById('lblDurasi').textContent = durasi;
+        document.getElementById('lblHarga').textContent = harga;
+        
+        if(tipe !== "-") {
+            document.getElementById('lblSubtitle').textContent = `Total Pembayaran (${tipe}) | Tgl Masuk: ${tanggal}`;
+        }
+
+        // 3. LOGIKA PILIHAN PEMBAYARAN DINAMIS (2 METODE)
+        const areaPay = document.getElementById('areaPembayaran');
+
+        if (metode.includes('BCA') || metode.includes('Transfer')) {
+            document.getElementById('lblMetode').textContent = "Transfer Bank BCA";
+            areaPay.innerHTML = `
+                <div class="method-title">Transfer via Bank BCA</div>
+                <p class="method-desc">Silakan lakukan transfer tepat sesuai total tagihan di atas ke nomor rekening kos berikut:</p>
+                <div class="bank-box">
+                    <div style="font-size: 12px; color: #555;">Nomor Rekening BCA:</div>
+                    <div class="rekening-num">8045 221A BB</div>
+                    <div style="font-weight: 600; font-size: 14px; color: #333;">a.n. Pemilik Kost Yu</div>
+                </div>
+            `;
+        } else {
+            document.getElementById('lblMetode').textContent = "E-Wallet / QRIS";
+            areaPay.innerHTML = `
+                <div class="method-title">Scan QRIS Untuk Membayar</div>
+                <p class="method-desc">Silakan gunakan aplikasi e-wallet atau mobile banking Anda (Gopay, OVO, Dana, LinkAja, dll)</p>
+                <img src="qris.png" class="qris-img" alt="QRIS Kost Yu" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=KostYuPembayaran'">
+            `;
+        }
+    });
+
+    function prosesKonfirmasi() {
+        alert("Terima kasih! Bukti pembayaran Anda sedang diverifikasi oleh admin. Kami akan mengirimkan notifikasi segera.");
+        window.location.href = "index.html"; // Balik ke halaman utama/dashboard setelah sukses
+    }
+</script>
+</body>
+</html>

@@ -6,18 +6,31 @@
     <title>Formulir Pemesanan - Kost Yu</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="kostyu.css">
+    
 </head>
 <body style="background-color: #f5edd3; padding: 40px 20px;">
+    <div id="popupAksesDitolak" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 9999;">
+    <div style="background: #f9f9eb; padding: 30px; border-radius: 12px; text-align: center; max-width: 400px; width: 85%; box-shadow: 0 4px 15px rgba(0,0,0,0.3); font-family: 'Poppins', sans-serif;">
+        <h3 style="color: #3c5a2c; margin-top: 0; font-size: 22px;">Akses Ditolak!</h3>
+        <p style="color: #333; margin: 15px 0 25px 0; font-size: 14px; line-height: 1.5;">
+            Anda harus login terlebih dahulu sebelum memesan kamar.
+        </p>
+        <button id="btnOkPopup" style="background: #3c5a2c; color: white; border: none; padding: 10px 30px; border-radius: 20px; cursor: pointer; font-size: 15px; font-weight: 500; width: 100px;">
+            OK
+        </button>
+    </div>
+</div>
 
     <div class="booking-wrapper">
         <h2>Formulir Pemesanan Kamar</h2>
         <p class="booking-subtitle">Silakan isi data diri Anda dengan lengkap dan benar.</p>
 
-        <form action="/api/booking" method="POST" enctype="multipart/form-data">
+        <form id="formPemesanan" enctype="multipart/form-data">
             
+            <input type="hidden" name="id_user" id="id_user">
+
             <div class="form-section-title">Informasi Kamar</div>
             <div class="form-row">
-                
                 <div class="form-group">
                     <label>Pilih Tipe Kamar</label>
                     <select name="tipe_kamar" id="tipe_kamar" required>
@@ -33,9 +46,8 @@
                     <label>Pilih Nomor Kamar</label>
                     <select name="nomor_kamar" id="nomor_kamar" required>
                         <option value="" disabled selected>-- Pilih Nomor --</option>
-                        </select>
+                    </select>
                 </div>
-                
             </div>
 
             <div class="form-section-title">Data Diri Pengunjung</div>
@@ -60,6 +72,12 @@
                 <textarea name="alamat_asal" placeholder="Masukkan alamat lengkap asal rumah Anda" rows="3" required></textarea>
             </div>
 
+            <div class="form-group">
+                <label>Upload Foto KTP Anda</label>
+                <input type="file" name="foto_ktp" id="foto_ktp" accept="image/*" required>
+                <small style="color: #666; display: block; margin-top: 5px;">Format file wajib gambar (.jpg, .jpeg, .png)</small>
+            </div>
+
             <div class="form-section-title">Kontak Darurat (Keluarga/Kerabat)</div>
             <div class="form-row">
                 <div class="form-group">
@@ -72,7 +90,30 @@
                 </div>
             </div>
 
+            <div class="form-section-title">Rencana Menetap & Paket Durasi</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Tanggal Masuk Kos</label>
+                    <input type="date" name="tanggal_masuk" id="tanggal_masuk" required>
+                </div>
 
+                <div class="form-group">
+                    <label>Pilih Paket Durasi Sewa</label>
+                    <select name="durasi_sewa" id="durasi_sewa" required>
+                        <option value="" disabled selected>-- Pilih Paket --</option>
+                        <option value="1">1 Bulan (Bulanan)</option>
+                        <option value="6">6 Bulan (Setengah Tahun)</option>
+                        <option value="12">12 Bulan (1 Tahun / Tahunan)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 15px; background: #fff; padding: 12px; border-radius: 6px; border: 1px dashed #cca43b;">
+                <label style="font-weight: bold; color: #cca43b; display: block; margin-bottom: 5px;">Total Biaya Sewa:</label>
+                <span id="live_total_harga" style="font-size: 1.3rem; font-weight: bold; color: #333;">Rp 0</span>
+            </div>
+
+            <input type="hidden" name="total_harga" id="total_harga" value="0">
 
             <div class="form-section-title">Metode Pembayaran DP / Sewa</div>
             <div class="form-group">
@@ -81,41 +122,159 @@
                     <option value="" disabled selected>-- Pilih Metode Pembayaran --</option>
                     <option value="Transfer BCA">Transfer Bank BCA</option>
                     <option value="Transfer Mandiri">Transfer Bank Mandiri</option>
-                    <option value="E-Wallet">E-Wallet (GoPay / OVO / Dana)</option>
+                    <option value="E-Wallet">E-Wallet (GoPay / OVO / Dana / QRIS)</option>
                 </select>
             </div>
 
-            <button type="submit" class="btn-submit-booking">Kirim Formulir Pemesanan</button>
+            <button type="submit" class="btn-submit-booking">Kirim Pendaftaran</button>
         </form>
     </div>
 
 <script>
-    const selectTipe = document.getElementById('tipe_kamar');
-    const selectNomor = document.getElementById('nomor_kamar');
+    const formPemesanan = document.getElementById('formPemesanan');
+    const selectTipe = document.getElementById('tipe_kamar'); 
+    const selectNomor = document.getElementById('nomor_kamar'); 
+    const selectDurasi = document.getElementById('durasi_sewa');
+    const liveTotalHarga = document.getElementById('live_total_harga');
+    const inputTotalHarga = document.getElementById('total_harga');
 
-    // Otomatis tarik nomor kamar yang berstatus 'Kosong' dari database saat tipe dipilih
-    selectTipe.addEventListener('change', async () => {
-        const tipeDipilih = selectTipe.value.replace('Tipe ', '');
-        selectNomor.innerHTML = '<option value="" disabled selected>-- Memuat Nomor Kamar... --</option>';
-
-        try {
-            const respon = await fetch(`/api/kamar/detail/${tipeDipilih}`);
-            const daftarKamar = await respon.json();
-
-            selectNomor.innerHTML = '<option value="" disabled selected>-- Pilih Nomor --</option>';
-            
-            // Masukkan kamar-kamar yang statusnya kosong ke dalam dropdown
-            daftarKamar.forEach(kamar => {
-                if (kamar.status === 'Kosong') {
-                    selectNomor.innerHTML += `<option value="${kamar.nomor_kamar}">${kamar.nomor_kamar} (Tersedia)</option>`;
-                } else {
-                    selectNomor.innerHTML += `<option value="${kamar.nomor_kamar}" disabled>${kamar.nomor_kamar} (Penuh)</option>`;
-                }
-            });
-        } catch (error) {
-            selectNomor.innerHTML = '<option value="" disabled>Gagal memuat data kamar</option>';
+    // === ID USER ===
+    let idPengguna = 1; 
+    try {
+        const dataUserLokal = JSON.parse(localStorage.getItem('user'));
+        if (dataUserLokal && dataUserLokal.id) {
+            idPengguna = dataUserLokal.id;
         }
-    });
+    } catch(e) {
+        console.error("Gagal membaca ID user.");
+    }
+    document.getElementById('id_user').value = idPengguna;
+
+    // AMBIL DETAIL KAMAR DENGAN SINKRONISASI TIPE YANG BENAR
+    if (selectTipe && selectNomor) {
+        selectTipe.addEventListener('change', async function() {
+            const tipeKamarPilihan = this.value; // Contoh: "Tipe A"
+            selectNomor.innerHTML = '<option value="">-- Pilih Nomor --</option>';
+            resetKalkulasiHarga();
+            
+            if (!tipeKamarPilihan) return;
+
+            // FIX: Mengirim string utuh seperti "Tipe A" (bukan "A") agar sesuai rute API database kamu
+            try {
+                const response = await fetch(`/api/kamar/detail/${encodeURIComponent(tipeKamarPilihan)}`);
+                const dataKamar = await response.json();
+
+                if (!dataKamar || dataKamar.length === 0) {
+                    selectNomor.innerHTML = '<option value="">Kamar Tidak Tersedia</option>';
+                    return;
+                }
+
+                dataKamar.forEach(kamar => {
+                    const statusKamar = String(kamar.status).toLowerCase();
+                    if (statusKamar === 'tersedia' || statusKamar === 'kosong' || statusKamar === '1') {
+                        const option = document.createElement('option');
+                        option.value = kamar.nomor_kamar;
+                        option.setAttribute('data-harga', kamar.harga);
+                        option.textContent = `Kamar ${kamar.nomor_kamar}`;
+                        selectNomor.appendChild(option);
+                    }
+                });
+
+                if (selectNomor.options.length === 1) {
+                    selectNomor.innerHTML = '<option value="">Semua Kamar Penuh</option>';
+                }
+            } catch (error) {
+                console.error('Gagal memuat nomor kamar:', error);
+                selectNomor.innerHTML = '<option value="">Kamar Tidak Tersedia</option>';
+            }
+        });
+    }
+
+    // HITUNG LIVE TOTAL HARGA SAAT PENGGUNA MEMILIH NOMOR / DURASI
+    function hitungLiveHarga() {
+        const opsiKamar = selectNomor.options[selectNomor.selectedIndex];
+        const durasiBulan = parseInt(selectDurasi.value) || 0;
+        
+        if (opsiKamar && opsiKamar.hasAttribute('data-harga') && durasiBulan > 0) {
+            const hargaPerBulan = parseInt(opsiKamar.getAttribute('data-harga')) || 0;
+            const total = hargaPerBulan * durasiBulan;
+            
+            inputTotalHarga.value = total;
+            liveTotalHarga.textContent = "Rp " + total.toLocaleString('id-ID');
+        } else {
+            resetKalkulasiHarga();
+        }
+    }
+
+    function resetKalkulasiHarga() {
+        inputTotalHarga.value = "0";
+        liveTotalHarga.textContent = "Rp 0";
+    }
+
+    if(selectNomor) selectNomor.addEventListener('change', hitungLiveHarga);
+    if(selectDurasi) selectDurasi.addEventListener('change', hitungLiveHarga);
+
+    // KIRIM DATA FORM KE BACKEND
+    if (formPemesanan) {
+        formPemesanan.addEventListener('submit', async (e) => {
+            e.preventDefault(); 
+            
+            const nomorKamar = selectNomor.value;
+            if (!nomorKamar) {
+                alert("Silakan pilih nomor kamar terlebih dahulu!");
+                return;
+            }
+
+            try {
+                // Bungkus semua data form secara utuh
+                const formData = new FormData(formPemesanan);
+                
+                // Set ulang total_harga dari nilai live kalkulasi agar datanya valid
+                formData.set('total_harga', inputTotalHarga.value);
+
+                const response = await fetch('/api/booking', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (result.success || response.ok) {
+                    const totalAkhir = parseInt(inputTotalHarga.value);
+                    const formatRupiah = "Rp " + totalAkhir.toLocaleString('id-ID');
+                    const durasiBulan = parseInt(selectDurasi.value);
+
+                    let teksDurasi = `${durasiBulan} Bulan`;
+                    if(durasiBulan === 1) teksDurasi = "1 Bulan (Bulanan)";
+                    if(durasiBulan === 6) teksDurasi = "6 Bulan (Setengah Tahun)";
+                    if(durasiBulan === 12) teksDurasi = "12 Bulan (Tahunan)";
+
+                    localStorage.setItem('tagihanHarga', formatRupiah);
+                    localStorage.setItem('tagihanTipe', selectTipe.value);
+                    localStorage.setItem('tagihanNomor', nomorKamar);
+                    localStorage.setItem('tagihanTanggal', document.getElementById('tanggal_masuk').value);
+                    localStorage.setItem('tagihanDurasi', teksDurasi);
+
+                    alert("Booking Berhasil Disimpan! Mengalihkan ke pembayaran...");
+                    window.location.href = 'pembayaran.html'; 
+                } else {
+                    alert("Gagal menyimpan: " + (result.message || "Terjadi kesalahan database"));
+                }
+            } catch (error) {
+                console.error('Error saat submit:', error);
+                alert("Terjadi kendala saat mengirim data ke server.");
+            }
+        });
+    }
+    const userLogat = localStorage.getItem('user');
+
+if (!userLogat) {
+    document.getElementById('popupAksesDitolak').style.display = 'flex';
+}
+
+document.getElementById('btnOkPopup').addEventListener('click', function () {
+    window.location.href = 'login.html';
+});
 </script>
 </body>
 </html>

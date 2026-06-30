@@ -10,7 +10,10 @@
     /* Memaksa semua elemen menggunakan Montserrat */
     font-family: 'Montserrat', sans-serif !important; 
 }
-
+html, body {
+    overflow-x: hidden; /* Mengunci agar tidak bisa digeser ke kanan */
+    width: 100%;
+}
 body {
     background: #f5f5f5;
     /* Default ketebalan menggunakan Light (300) agar ramping & bersih */
@@ -542,7 +545,7 @@ nav a:hover {
     border-radius: 14px; font-size: 18px; font-weight: 500; cursor: pointer; transition: 0.3s;
 }
 .pesan-btn:hover { background: #0000cc; }
-.kamar-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.kamar-list { display: flex !important; flex-direction: row !important; flex-wrap: wrap;  justify-content: flex-start; gap: 12px; margin-top: 15px; }
 .kamar-status { padding: 10px 14px; border-radius: 12px; font-weight: 500; font-size: 14px; }
 .kamar-status.tersedia { background: #d4f8d4; color: green; }
 .kamar-status.penuh { background: #ffd6d6; color: #c40000; }
@@ -832,7 +835,7 @@ footer {
     .detail-info { padding: 25px; }
     .detail-info h1 { font-size: 32px; }
     .harga { font-size: 24px; }
-    .thumbnail-container { justify-content: center; }
+    .thumbnail-container { justify-content: center; flex-wrap: wrap !important; gap: 10px; }
     .thumbnail-container img { width: 65px; height: 65px; }
     
     .login-page-wrapper .login-container {
@@ -844,6 +847,7 @@ footer {
     .login-page-wrapper .input-group input { padding: 12px 14px; font-size: 14px; }
     .login-page-wrapper .btn-login-submit { padding: 12px; font-size: 15px; }
     .login-page-wrapper .switch-text { font-size: 13px; }
+
 }
 .dashboard-header{
     display:flex;
@@ -899,10 +903,10 @@ footer {
         padding: 12px;
         font-size: 15px;
     }
-
     .login-page-wrapper .switch-text{
         font-size: 13px;
     }
+
     .dashboard-grid { 
         grid-template-columns: 1fr !important; 
         gap: 20px !important; 
@@ -918,3 +922,84 @@ footer {
         font-size: 28px !important;
         white-space: nowrap; 
     }
+    .popup {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    width: 320px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+    animation: popupShow 0.3s ease;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.popup-content button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    background: #2e7d32;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+
+    display: block;
+}
+
+.popup-content button:hover {
+    background: #1b5e20;
+}
+
+@keyframes popupShow {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+/* ========================================================
+   FORMASI 2-2-1 KAMAR TIPE A (KAYA GAMBAR)
+   ======================================================== */
+
+#daftar-kamar {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important; 
+    gap: 12px !important;               
+    width: 100% !important;
+    padding: 10px 0 !important;
+}
+
+#daftar-kamar .kamar-status {
+    display: block !important;
+    /* Ini yang bikin dia muat 2 per baris dan sisanya di tengah */
+    width: calc(50% - 15px) !important; 
+    flex: 0 0 calc(50% - 15px) !important;
+    
+    box-sizing: border-box !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    border-radius: 12px !important; 
+    white-space: nowrap !important;
+}

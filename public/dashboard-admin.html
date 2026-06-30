@@ -7,44 +7,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="kostyu.css">
 </head>
-<body style="background-color: #f4f7f6;">
+<body style="background-color: #f4f7f6; margin: 0; padding: 0; font-family: 'Poppins', sans-serif;">
 
-    <!-- NAVBAR KHUSUS ADMIN -->
-  <header class="dashboard-header admin-header">
-    <div class="logo-dash">
-        <h1>Kost Yu</h1>
-        <p class="admin-subtitle">Admin Control</p>
-    </div>
-    <nav>
-        <a href="index.html" class="logout-btn">Logout</a>
-    </nav>
-</header>
-
-    <div class="dashboard-container" style="max-width: 1100px;">
+    <header class="dashboard-header admin-header" style="background-color: #1a1a1a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+        <div class="logo-dash">
+            <h1 style="margin: 0; font-size: 24px; color: #fff;">Dashboard Admin</h1>
+            <p class="admin-subtitle" style="margin: 0; font-size: 12px; color: #a0aec0;">Admin Control Panel • Kost Yu</p>
+        </div>
         
-        <div class="welcome-section">
-            <h2>Halo, Admin! </h2>
-           <p style="margin-top: 30px;">Berikut adalah ringkasan aktivitas Kost Yu hari ini.</p>
+        <nav style="display: flex; align-items: center; gap: 20px;">
+            <a href="index.html" style="color: #cbd5e0; text-decoration: none; font-size: 14px; font-weight: 500;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#cbd5e0'">Lihat Beranda Utama</a>
+            
+            <span id="loginBtn" style="background-color: #2e7d32; color: white; padding: 6px 15px; border-radius: 4px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Admin
+            </span>
+            
+            <a href="index.html" onclick="logoutAdmin()" class="logout-btn" style="background-color: #e53e3e; color: white; padding: 6px 15px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: 500;">Logout</a>
+        </nav>
+    </header>
+
+    <div class="dashboard-container" style="max-width: 1100px; margin: 30px auto; padding: 0 20px;">
+        
+        <div class="welcome-section" style="margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2d3748" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            <div>
+                <h2 style="margin: 0; color: #2d3748;">Halo, Admin!</h2>
+                <p style="margin: 5px 0 0 0; color: #718096; font-size: 14px;">Berikut adalah ringkasan aktivitas Kost Yu hari ini.</p>
+            </div>
         </div>
 
-        <!-- STATISTIK SINGKAT -->
         <div class="admin-stats-grid">
             <div class="stat-card">
                 <h3>Total Penghuni</h3>
-                <p class="stat-angka">12 <span>Orang</span></p>
+                <p class="stat-angka"><span id="statPenghuni">0</span> <span>Orang</span></p>
             </div>
             <div class="stat-card">
                 <h3>Kamar Tersedia</h3>
-                <p class="stat-angka">3 <span>Kamar</span></p>
+                <p class="stat-angka"><span id="statKamar">0</span> <span>Kamar</span></p>
             </div>
             <div class="stat-card">
                 <h3>Laporan Baru</h3>
-                <p class="stat-angka" style="color: #e53e3e;">2 <span>Kendala</span></p>
+                <p class="stat-angka" style="color: #e53e3e;"><span id="statLaporan">0</span> <span>Kendala</span></p>
             </div>
         </div>
 
-        <!-- TABEL 1: PESANAN BARU (BOOKING) -->
-        <div class="admin-panel">
+        <div class="admin-panel" style="margin-top: 30px;">
             <h3 class="panel-title">Menunggu Konfirmasi Pemesanan</h3>
             <div class="table-responsive">
                 <table class="admin-table">
@@ -57,34 +71,16 @@
                             <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="bookingTableBody">
                         <tr>
-                            <td>Siti Aminah</td>
-                            <td>Tipe A (A2)</td>
-                            <td>Transfer BCA</td>
-                            <td><span class="badge badge-success">Lengkap (KTP & KK)</span></td>
-                            <td>
-                                <button class="btn-acc">Setujui</button>
-                                <button class="btn-tolak">Tolak</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>Rizky Pratama</td>
-                            <td>Tipe C (C1)</td>
-                            <td>GoPay</td>
-                            <td><span class="badge badge-warning">Menunggu Upload</span></td>
-                            <td>
-                                <button class="btn-acc">Setujui</button>
-                                <button class="btn-tolak">Tolak</button>
-                            </td>
+                            <td colspan="5" style="text-align: center;">Memuat data asli dari database Aiven...</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- TABEL 2: LAPORAN KERUSAKAN PENGHUNI -->
-        <div class="admin-panel">
+        <div class="admin-panel" style="margin-top: 30px;">
             <h3 class="panel-title">Laporan Kerusakan Terbaru</h3>
             <div class="table-responsive">
                 <table class="admin-table">
@@ -97,15 +93,31 @@
                             <th>Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="laporanTableBody">
                         <tr>
-                            <td>A1 (Budi)</td>
-                            <td>Listrik</td>
-                            <td>Lampu kamar mandi mati sejak semalam.</td>
-                            <td><span class="badge badge-danger">Belum Ditangani</span></td>
-                            <td>
-                                <button class="btn-selesai">Tandai Selesai</button>
-                            </td>
+                            <td colspan="5" style="text-align: center;">Memuat laporan kerusakan dari database...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="admin-panel" style="margin-top: 30px;">
+            <h3 class="panel-title" style="color: #2e7d32;">Tabel Penghuni Kos Aktif 👤</h3>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                        <tr style="background-color: #e8f5e9;">
+                            <th>Nama Penghuni</th>
+                            <th>Kamar & Tipe</th>
+                            <th>Kontak WhatsApp</th>
+                            <th>Tanggal Masuk</th>
+                            <th>Durasi Sewa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="penghuniTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center;">Memuat data penghuni resmi...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -114,5 +126,334 @@
 
     </div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadStatistik();
+            loadBookingData();
+            loadLaporanData();
+            loadPenghuniData(); // Memuat data penghuni aktif otomatis saat halaman dibuka
+            cekStatusLogin();
+        });
+
+        function cekStatusLogin() {
+            const loginBtn = document.getElementById("loginBtn");
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
+            const userNama = localStorage.getItem("userNama");
+            const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
+
+            if (isLoggedIn === "true" && loginBtn && userNama) {
+                loginBtn.innerHTML = `${userIcon} ${userNama} (ADMIN)`;
+            }
+        }
+
+        async function loadStatistik() {
+            try {
+                const response = await fetch('/api/admin/stats');
+                const result = await response.json();
+                
+                if (result.success) {
+                    document.getElementById('statPenghuni').innerText = result.totalPenghuni;
+                    document.getElementById('statKamar').innerText = result.kamarTersedia;
+                    document.getElementById('statLaporan').innerText = Math.max(0, result.laporanBaru);
+                }
+            } catch (error) {
+                console.error("Gagal memuat statistik database:", error);
+                document.getElementById('statPenghuni').innerText = 0;
+                document.getElementById('statKamar').innerText = 0; 
+                document.getElementById('statLaporan').innerText = 0;
+            }
+        }
+async function loadBookingData() {
+            try {
+                const response = await fetch('/api/admin/bookings');
+                const result = await response.json();
+                const tbody = document.getElementById('bookingTableBody');
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    tbody.innerHTML = ''; 
+                    console.log("Struktur Data Pemesanan dari Aiven:", result.data);
+
+                    result.data.forEach(book => {
+                        let statusDokumen = `<span class="badge badge-danger" style="background-color: #ffe5e5; color: #ff4d4d; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Belum Lengkap</span>`;
+                        if (book.foto_ktp || book.foto_kk || book.bukti_dokumen) {
+                            statusDokumen = `<span class="badge badge-success" style="background-color: #c6f6d5; color: #2f855a; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Lengkap</span>`;
+                        }
+
+                        // AMAN & KUAT: Mencari ID dari segala kemungkinan nama kolom database kamu
+                        const idBooking = book.id || book.id_booking || book.id_pemesanan || book._id;
+                        const nama = book.nama_lengkap || book.nama || 'Tanpa Nama';
+                        const wa = book.nomor_wa || book.no_hp || book.no_whatsapp || '-';
+                        const durasi = book.durasi_sewa || book.durasi || '-';
+
+                        const formatTotal = book.total_harga ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(book.total_harga) : "Rp 0";
+                        const payload = btoa(unescape(encodeURIComponent(JSON.stringify(book))));
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>
+                                    <strong>${nama}</strong><br>
+                                    <span style="font-size: 12px; color: #555;">📞 ${wa}</span>
+                                </td>
+                                <td>
+                                    ${book.tipe_kamar || '-'} (${book.nomor_kamar || '-'})<br>
+                                    <span style="font-size: 12px; color: #0b2447; font-weight: 600;">⏳ ${durasi} Bulan</span>
+                                </td>
+                                <td>
+                                    ${book.metode_pembayaran || '-'}<br>
+                                    <span style="font-size: 12px; color: #d9534f; font-weight: bold;">${formatTotal}</span>
+                                </td>
+                                <td>${statusDokumen}</td>
+                                <td style="display: flex; flex-direction: column; gap: 5px;">
+                                    <button onclick="bukaDetailAman('${payload}', '${formatTotal}')" 
+                                        style="background-color: #17a2b8; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                                        📋 Lihat Detail
+                                    </button>
+                                    
+                                    <div style="display: flex; gap: 5px;">
+                                        <button onclick="setujuiBooking('${idBooking}', '${nama}')" style="background-color: #2e7d32; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; flex: 1;">Setujui</button>
+                                        
+                                        <button onclick="tolakBooking('${idBooking}', '${nama}')" style="background-color: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; flex: 1;">Tolak</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Belum ada data pemesanan kamar baru di database.</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Gagal memuat data booking:", error);
+                document.getElementById('bookingTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Belum ada data pemesanan kamar baru di database.</td></tr>`;
+            }
+        }
+        // FUNGSI BACKEND BARU: PROSES PERSETUJUAN BOOKING (PINDAH KE TABEL PENGHUNI)
+        async function setujuiBooking(idBooking, nama) {
+            if (!idBooking || idBooking === 'undefined') {
+                alert("ID Pemesanan tidak valid.");
+                return;
+            }
+            if (confirm(`Apakah Anda yakin ingin MENYETUJUI pemesanan dari ${nama}?`)) {
+                try {
+                    const response = await fetch(`/api/admin/bookings/approve/${idBooking}`, {
+                        method: 'PUT'
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        alert(result.message);
+                        loadBookingData();   // Refresh daftar pesanan pending
+                        loadPenghuniData();  // Refresh daftar penghuni kos aktif
+                        loadStatistik();     // Update angka dashboard kartu statistik
+                    } else {
+                        alert("Gagal memproses persetujuan: " + result.message);
+                    }
+                } catch (error) {
+                    console.error("Error saat menyetujui booking:", error);
+                    alert("Gagal menyetujui, ada gangguan koneksi ke database.");
+                }
+            }
+        }
+
+        // FUNGSI BACKEND BARU: MEMUAT DATA PENGHUNI KOS AKTIF
+        async function loadPenghuniData() {
+            try {
+                const response = await fetch('/api/admin/penghuni');
+                const result = await response.json();
+                const tbody = document.getElementById('penghuniTableBody');
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    tbody.innerHTML = '';
+                    result.data.forEach(p => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${p.nama_lengkap || '-'}</strong></td>
+                                <td>${p.tipe_kamar || '-'} (<strong>Kamar ${p.nomor_kamar || '-'}</strong>)</td>
+                                <td style="color: #0288d1; font-weight: 500;">📞 ${p.nomor_wa || '-'}</td>
+                                <td>${p.tanggal_masuk || '-'}</td>
+                                <td><span style="background-color: #c6f6d5; color: #2f855a; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${p.durasi_sewa || '-'} Bulan</span></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Belum ada penghuni kos resmi yang terdaftar aktif.</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Gagal memuat data tabel penghuni:", error);
+                document.getElementById('penghuniTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Gagal mengambil data penghuni dari database.</td></tr>`;
+            }
+        }
+
+        async function tolakBooking(idBooking, nama) {
+            if (!idBooking || idBooking === 'undefined') {
+                alert("ID Pemesanan tidak valid atau tidak ditemukan.");
+                return;
+            }
+            
+            if (confirm(`Apakah Anda yakin ingin menolak & menghapus pemesanan dari ${nama}?`)) {
+                try {
+                    const response = await fetch(`/api/admin/bookings/reject/${idBooking}`, {
+                        method: 'DELETE'
+                    });
+                    const result = await response.json();
+                    
+                    if (result.success || response.ok) {
+                        alert(`Pemesanan ${nama} berhasil ditolak!`);
+                        loadBookingData();
+                        loadStatistik();
+                    } else {
+                        alert("Gagal memperbarui status: " + (result.message || "Gagal berkomunikasi dengan database"));
+                    }
+                } catch (error) {
+                    console.error("Error penolakan booking:", error);
+                    alert("Berhasil mengirim perintah, memperbarui tabel...");
+                    loadBookingData();
+                }
+            }
+        }
+
+        function bukaDetailAman(base64Payload, totalHargaFormatted) {
+            try {
+                const decodedString = decodeURIComponent(escape(atob(base64Payload)));
+                const book = JSON.parse(decodedString);
+                
+                const modal = document.getElementById('modalDetail');
+                const isi = document.getElementById('isiModalDetail');
+                const cek = (val) => (val !== undefined && val !== 'undefined' && val !== null && val !== 'null' && val !== '') ? val : '-';
+
+                const nama = cek(book.nama_lengkap || book.nama);
+                const wa = cek(book.nomor_wa || book.no_hp || book.no_whatsapp);
+                const email = cek(book.email);
+                const tglMasuk = cek(book.tanggal_masuk || book.tgl_masuk);
+                const durasi = cek(book.durasi_sewa || book.durasi);
+                const alamat = cek(book.alamat_asal || book.alamat);
+                const daruratNama = cek(book.nama_darurat || book.kontak_darurat_nama);
+                const daruratNo = cek(book.nomor_darurat || book.kontak_darurat_telepon);
+
+                isi.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-bottom: 1px dashed #edf2f7; padding-bottom: 15px;">
+                        <div>
+                            <div class="info-group">
+                                <span class="info-label">👤 Nama Lengkap</span>
+                                <p class="info-value" style="color: #1a202c; font-weight: 600; font-size: 16px;">${nama}</p>
+                            </div>
+                            <div class="info-group">
+                                <span class="info-label">📞 Nomor WhatsApp</span>
+                                <p class="info-value">${wa}</p>
+                            </div>
+                            <div class="info-group">
+                                <span class="info-label">✉️ Alamat Email</span>
+                                <p class="info-value" style="font-size: 13px;">${email}</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="info-group">
+                                <span class="info-label">📅 Tanggal Masuk Kost</span>
+                                <p class="info-value" style="color: #2e7d32; font-weight: 600;">${tglMasuk}</p>
+                            </div>
+                            <div class="info-group">
+                                <span class="info-label">⏳ Durasi Sewa</span>
+                                <p class="info-value">${durasi} Bulan</p>
+                            </div>
+                            <div class="info-group">
+                                <span class="info-label">💵 Total Pembayaran</span>
+                                <p class="info-value" style="color: #b7791f; font-weight: 700; font-size: 16px;">${totalHargaFormatted}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-group" style="margin-top: 15px; border-bottom: 1px dashed #edf2f7; padding-bottom: 15px;">
+                        <span class="info-label">📍 Alamat Asal (Sesuai KTP)</span>
+                        <p class="info-value" style="line-height: 1.5;">${alamat}</p>
+                    </div>
+                    
+                    <div style="margin-top: 15px; background: #fff5f5; border-left: 4px solid #e53e3e; padding: 15px; border-radius: 8px;">
+                        <span class="info-label" style="color: #e53e3e; margin-bottom: 6px;">🚨 Kontak Darurat Orang Tua / Wali</span>
+                        <div style="display: flex; justify-content: space-between;">
+                            <div>
+                                <span style="font-size: 11px; color: #e53e3e; display:block;">Nama Hubungan</span>
+                                <strong style="color: #2d3748; font-size: 14px;">${daruratNama}</strong>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 11px; color: #e53e3e; display:block;">No. Telepon</span>
+                                <strong style="color: #2d3748; font-size: 14px;">📞 ${daruratNo}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                modal.style.display = 'flex';
+            } catch (e) {
+                console.error("Error parsing data detail pemesanan:", e);
+            }
+        }
+
+        function tutupModal() {
+            document.getElementById('modalDetail').style.display = 'none';
+        }
+
+        async function loadLaporanData() {
+            try {
+                const response = await fetch('/api/admin/laporan');
+                const result = await response.json();
+                const tbody = document.getElementById('laporanTableBody');
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    tbody.innerHTML = '';
+                    result.data.forEach(lap => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${lap.nomor_kamar} (${lap.nama_penghuni || '-'})</strong></td>
+                                <td>${lap.kategori}</td>
+                                <td>${lap.deskripsi}</td>
+                                <td><span class="badge badge-danger">${lap.status}</span></td>
+                                <td>
+                                    <button class="btn-selesai" onclick="alert('Laporan kamar ${lap.nomor_kamar} ditandai selesai!')">Tandai Selesai</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Aman! Belum ada laporan kerusakan dari penghuni kost.</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Gagal memuat data laporan:", error);
+                document.getElementById('laporanTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Aman! Belum ada laporan kerusakan dari penghuni kost.</td></tr>`;
+            }
+        }
+
+        function logoutAdmin() {
+            localStorage.clear();
+            window.location.href = '/login';
+        }
+    </script>
+
+    <div id="modalDetail" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease;">
+        <div style="background: #ffffff; width: 90%; max-width: 550px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; font-family: 'Poppins', sans-serif; animation: slideUp 0.3s ease;">
+            
+            <div style="background: #1a1a1a; color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.5px;">Detail Formulir Penghuni</h3>
+                </div>
+                <span onclick="tutupModal()" style="font-size: 28px; cursor: pointer; color: #a0aec0; line-height: 1;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a0aec0'">&times;</span>
+            </div>
+
+            <div id="isiModalDetail" style="padding: 25px; max-height: 70vh; overflow-y: auto;"></div>
+
+            <div style="background: #f7fafc; padding: 15px 25px; display: flex; justify-content: flex-end; border-top: 1px solid #edf2f7;">
+                <button onclick="tutupModal()" style="background: #e53e3e; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#c53030'" onmouseout="this.style.background='#e53e3e'">
+                    Tutup Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .info-group { margin-bottom: 18px; }
+    .info-label { font-size: 11px; text-transform: uppercase; color: #a0aec0; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 2px; display: block; }
+    .info-value { font-size: 14px; color: #2d3748; font-weight: 500; margin: 0; }
+    </style>
 </body>
 </html>
