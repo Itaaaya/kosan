@@ -121,6 +121,48 @@
     </style>
 </head>
 <body>
+    <div id="popupKonfirmasi"
+     style="display:none;
+            position:fixed;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,.6);
+            justify-content:center;
+            align-items:center;
+            z-index:9999;">
+
+    <div style="background:#f9f9eb;
+                padding:30px;
+                border-radius:12px;
+                width:400px;
+                text-align:center;
+                font-family:'Poppins',sans-serif;">
+
+        <h3 style="color:#3c5a2c;">
+            Pembayaran Berhasil Dikirim
+        </h3>
+
+        <p style="color:#333; line-height:1.6;">
+            Terima kasih! Bukti pembayaran Anda sedang diverifikasi oleh admin.
+            <br><br>
+            Kami akan mengirimkan notifikasi setelah pembayaran disetujui.
+        </p>
+
+        <button id="btnSelesai"
+            style="background:#3c5a2c;
+                   color:white;
+                   border:none;
+                   padding:10px 30px;
+                   border-radius:20px;
+                   cursor:pointer;">
+            OK
+        </button>
+
+    </div>
+
+</div>
 
     <div class="pay-card">
         <span class="status-badge">Belum Dibayar</span>
@@ -199,10 +241,15 @@
         }
     });
 
-    function prosesKonfirmasi() {
-        alert("Terima kasih! Bukti pembayaran Anda sedang diverifikasi oleh admin. Kami akan mengirimkan notifikasi segera.");
-        window.location.href = "index.html"; // Balik ke halaman utama/dashboard setelah sukses
-    }
+function prosesKonfirmasi() {
+
+    document.getElementById("popupKonfirmasi").style.display = "flex";
+
+    document.getElementById("btnSelesai").onclick = function () {
+        window.location.href = "index.html";
+    };
+
+}
 </script>
 </body>
 </html>

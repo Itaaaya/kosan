@@ -148,23 +148,63 @@ app.get('/api/kamar', (req, res) => {
         }
     });
 });
-
-// ==========================================
-// 🚀 API KAMAR DETAIL (Perbaikan Handler Error)
-// ==========================================
 app.get('/api/kamar/detail/:tipe', (req, res) => {
-    const tipeKamar = req.params.tipe;
-    const sql = "SELECT nomor_kamar, status, harga FROM kamar WHERE tipe_kamar = ?";
-    
-    db.query(sql, [tipeKamar], (err, results) => {
-        if (err) {
-            console.error("🔥 Gagal mengambil detail kamar:", err.message);
-            return res.status(500).json({ success: false, message: "Gagal memuat detail kamar." });
-        }
-        res.json(results);
-    });
-});
 
+    console.log("Frontend kirim:", req.params.tipe);
+
+    const sql = `
+        SELECT nomor_kamar, status, harga
+        FROM kamar
+        WHERE tipe_kamar = ?
+    `;
+
+    db.query(sql, [req.params.tipe], (err, results) => {
+
+        console.log("Error:", err);
+        console.log("Hasil:", results);
+
+        res.json(results);
+
+    });
+
+});
+app.get('/api/test-a', (req, res) => {
+
+    db.query("SELECT * FROM kamar", (err, hasil) => {
+
+        if (err) {
+            console.log(err);
+            return res.json(err);
+        }
+
+        console.log("Isi tabel kamar:", hasil);
+
+        res.json(hasil);
+
+    });
+
+});
+app.get('/api/cek-db', (req, res) => {
+
+    db.query("SELECT DATABASE() AS db", (err, hasilDb) => {
+
+        if (err) return res.json(err);
+
+        db.query("SELECT * FROM kamar", (err2, hasilKamar) => {
+
+            if (err2) return res.json(err2);
+
+            res.json({
+                database: hasilDb,
+                jumlahData: hasilKamar.length,
+                data: hasilKamar
+            });
+
+        });
+
+    });
+
+});
 app.post('/api/booking', upload.single('foto_ktp'), (req, res) => {
     const { id_user, tipe_kamar, nomor_kamar, nama_lengkap, nomor_wa, email, alamat_asal, nama_darurat, nomor_darurat, tanggal_masuk, durasi_sewa, total_harga, metode_pembayaran } = req.body;
     const foto_ktp = req.file ? req.file.filename : null;
@@ -415,7 +455,52 @@ app.get('/api/fix-ayu-sekarang', (req, res) => {
         res.send("<h1>Selesai! Akun Ayu Ningsih resmi jadi Penghuni. Silakan login ulang!</h1>");
     });
 });
+// ==========================================
+// API TAGIHAN PENGHUNI
+// ==========================================
+app.get('/api/penghuni/tagihan/:id', (req, res) => {
+    const idUser = req.params.id;
 
+    const sql = `
+        SELECT
+            nomor_kamar,
+            tipe_kamar,
+            tanggal_masuk,
+            durasi_sewa,
+            total_harga,
+            metode_pembayaran,
+            status_booking
+        FROM booking
+        WHERE id_user = ?
+        ORDER BY id DESC
+        LIMIT 1
+    `;
+
+    db.query(sql, [idUser], (err, result) => {
+
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                success:false,
+                message:"Database error"
+            });
+        }
+
+        if(result.length===0){
+            return res.json({
+                success:false,
+                message:"Belum ada data booking"
+            });
+        }
+
+        res.json({
+            success:true,
+            data:result[0]
+        });
+
+    });
+
+});
 app.get('/api/fix-laporan', (req, res) => {
     const sqlStatusAja = "ALTER TABLE laporan_kerusakan ADD COLUMN status VARCHAR(50) DEFAULT 'Belum Ditangani'";
     db.query(sqlStatusAja, (err, result) => {
