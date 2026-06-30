@@ -22,7 +22,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // =======================================================
-// 1. KONEKSI KE DATABASE AIVEN (UPGRADED ANTI-ECONNRESET)
+// 1. KONEKSI KE DATABASE AIVEN (ANTI-ECONNRESET)
 // =======================================================
 const dbConfig = {
     host: "mysql-3ef31308-itaa.h.aivencloud.com",
@@ -31,45 +31,52 @@ const dbConfig = {
     password: "AVNS_KTS-uu7yNx2MenbhqpF", 
     database: "defaultdb",
     waitForConnections: true,
-    connectionLimit: 15, // Ditambah sedikit slotnya agar aman pas refresh barengan
+    connectionLimit: 15, 
     queueLimit: 0,
     
-    // --- SETTINGAN SAKTI PENYELAMAT TIMEOUT ---
     enableKeepAlive: true, 
-    keepAliveInitialDelay: 10000, // Kirim sinyal ping otomatis ke cloud tiap 10 detik
+    keepAliveInitialDelay: 10000, 
     connectTimeout: 30000,
     acquireTimeout: 30000,
     
     ssl: {
-        rejectUnauthorized: false // WAJIB untuk cloud
+        rejectUnauthorized: false 
     }
 };
 
 let db = mysql.createPool(dbConfig);
 
-// Fungsi pengawas untuk memantau jika ada error drop koneksi di background
+// Fungsi pengawas koneksi database + AUTOMATIC REPAIR TYPE DATA
 function handleDisconnect() {
     db.getConnection((err, connection) => {
         if (err) {
             console.error('🔥 Gagal konek database Aiven. Mencoba lagi dalam 5 detik...', err.message);
-            // Ganti pool lama dengan yang baru jika gagal total
             db = mysql.createPool(dbConfig);
             setTimeout(handleDisconnect, 5000);
             return;
         }
         console.log('✅ Database Aiven Cloud Terhubung Stabil & Siap Pakai (Anti-Badai)!');
-        connection.release();
+        
+        // AKALAN SAKTI: Otomatis paksa perbesar kolom status_booking di background biar anti-error truncated!
+        const sqlAutoFix = "ALTER TABLE booking MODIFY COLUMN status_booking VARCHAR(255) DEFAULT 'Pending'";
+        connection.query(sqlAutoFix, (errFix) => {
+            if (errFix) {
+                console.log("ℹ️ Info perbaikan otomatis:", errFix.message);
+            } else {
+                console.log("🚀 SAKTI: Kolom status_booking otomatis diperbesar ke VARCHAR(255) oleh sistem!");
+            }
+            connection.release();
+        });
     });
 }
 
 handleDisconnect();
 
-// Middleware untuk membaca folder "public" secara otomatis
+// Middleware file statis
 app.use(express.static(path.join(__dirname, 'public')));
-// Izinkan aplikasi membaca folder uploads secara publik
 app.use('/uploads', express.static('uploads'));
 
-// 2. JALUR UTAMA (Membuka index.html saat pertama kali diakses)
+// JALUR UTAMA
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
@@ -101,8 +108,9 @@ app.post('/api/login', (req, res) => {
             message: 'Login berhasil!',
             user: {
                 id: user.id,
-                nama: user.nama_lengkap,
-                role: user.role
+                nama: user.nama_panggilan || user.nama_lengkap.split(' ')[0], 
+                role: user.role,
+                foto: user.foto_profil 
             }
         });
     });
@@ -126,7 +134,9 @@ app.post('/api/register', (req, res) => {
     });
 });
 
-// 3. API RINGKASAN KAMAR
+// ==========================================
+// 🚀 API KAMAR
+// ==========================================
 app.get('/api/kamar', (req, res) => {
     const sql = "SELECT * FROM kamar"; 
     db.query(sql, (err, result) => {
@@ -139,124 +149,147 @@ app.get('/api/kamar', (req, res) => {
     });
 });
 
+// ==========================================
+// 🚀 API KAMAR DETAIL (Perbaikan Handler Error)
+// ==========================================
 app.get('/api/kamar/detail/:tipe', (req, res) => {
     const tipeKamar = req.params.tipe;
     const sql = "SELECT nomor_kamar, status, harga FROM kamar WHERE tipe_kamar = ?";
     
     db.query(sql, [tipeKamar], (err, results) => {
-        if (err) return res.status(500).json(err);
+        if (err) {
+            console.error("🔥 Gagal mengambil detail kamar:", err.message);
+            return res.status(500).json({ success: false, message: "Gagal memuat detail kamar." });
+        }
         res.json(results);
     });
 });
 
-// ==========================================
-// API UNTUK MENYIMPAN PEMESANAN (BOOKING)
-// ==========================================
 app.post('/api/booking', upload.single('foto_ktp'), (req, res) => {
-    if (!req.file) {
-        console.error("Foto KTP tidak ditemukan dalam form!");
-        return res.status(400).json({ success: false, message: "Foto KTP wajib diunggah!" });
-    }
+    const { id_user, tipe_kamar, nomor_kamar, nama_lengkap, nomor_wa, email, alamat_asal, nama_darurat, nomor_darurat, tanggal_masuk, durasi_sewa, total_harga, metode_pembayaran } = req.body;
+    const foto_ktp = req.file ? req.file.filename : null;
 
-    const fotoKtpName = req.file.filename;
+    // Set default status sebagai 'Pending' agar terbaca di halaman admin kamu
+    const status_booking = 'Pending'; 
 
-    const { 
-        id_user, tipe_kamar, nomor_kamar, nama_lengkap, 
-        nomor_wa, email, alamat_asal, nama_darurat, nomor_darurat, 
-        tanggal_masuk, durasi_sewa, total_harga, metode_pembayaran 
-    } = req.body;
+    const sql = `INSERT INTO booking (id_user, tipe_kamar, nomor_kamar, nama_lengkap, nomor_wa, email, alamat_asal, foto_ktp, nama_darurat, nomor_darurat, tanggal_masuk, durasi_sewa, total_harga, metode_pembayaran, status_booking) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    const sql = `INSERT INTO booking 
-        (id_user, tipe_kamar, nomor_kamar, nama_lengkap, nomor_wa, email, alamat_asal, nama_darurat, nomor_darurat, metode_pembayaran, tanggal_masuk, durasi_sewa, total_harga, foto_ktp) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-
-    const values = [
-        id_user, tipe_kamar, nomor_kamar, nama_lengkap, 
-        nomor_wa, email, alamat_asal, nama_darurat, nomor_darurat, 
-        metode_pembayaran, tanggal_masuk, durasi_sewa, total_harga, fotoKtpName
-    ];
+    const values = [id_user, tipe_kamar, nomor_kamar, nama_lengkap, nomor_wa, email, alamat_asal, foto_ktp, nama_darurat, nomor_darurat, tanggal_masuk, durasi_sewa, total_harga, metode_pembayaran, status_booking];
 
     db.query(sql, values, (err, result) => {
         if (err) {
-            console.error("Gagal simpan data booking:", err.message);
-            return res.status(500).json({ success: false, message: "Error Database: " + err.message });
+            console.error("🔥 DATABASE ERROR:", err.message);
+            // Jika database gagal, kirim status false agar frontend TIDAK memunculkan pop-up sukses
+            return res.status(500).json({ success: false, message: "Gagal menyimpan ke database: " + err.message });
         }
-        res.json({ success: true, message: "Booking berhasil disimpan!" });
+        
+        // PENTING: Hanya kirim success true jika database BERHASIL insert!
+        console.log("✅ Data booking berhasil masuk DB dengan ID:", result.insertId);
+        res.json({ success: true, message: "Booking Berhasil Disimpan!" });
     });
 });
 
 // ==========================================
-// 🚀 JALUR UPDATE STRUKTUR DATABASE
+// 🚀 API LAPORAN (PENGHUNI) - FIX TOTAL ANTI-ERROR
 // ==========================================
-app.get('/api/fix-db', (req, res) => {
-    const sqlFix = "ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'penghuni', 'user') DEFAULT 'user'";
-    db.query(sqlFix, (err, result) => {
+app.post('/api/laporan', (req, res) => {
+    const { nomor_kamar, kategori, deskripsi, deskripsi_kendala } = req.body;
+    const isiDeskripsi = deskripsi || deskripsi_kendala; 
+    
+    console.log("Data laporan masuk ke server:", { nomor_kamar, kategori, isiDeskripsi });
+
+    if (!nomor_kamar || !kategori || !isiDeskripsi) {
+        return res.status(400).json({ 
+            success: false, 
+            message: "Gagal: Data tidak lengkap! Pastikan nomor kamar, kategori, and deskripsi sudah terisi." 
+        });
+    }
+
+    const sql = `INSERT INTO laporan_kerusakan (nomor_kamar, kategori, deskripsi_kendala, status) VALUES (?, ?, ?, 'Belum Ditangani')`;
+    
+    db.query(sql, [nomor_kamar, kategori, isiDeskripsi], (err, result) => {
         if (err) {
-            return res.send("Gagal mengupdate database: " + err.message);
+            console.error("🔥 ERROR KUERI DATABASE LAPORAN:", err.message);
+            return res.status(500).json({ 
+                success: false, 
+                message: "Gagal menyimpan laporan ke database: " + err.message 
+            });
         }
-        res.send("<h1>Mantap! Database berhasil di-upgrade. Sekarang kolom role bisa menerima 'user'.</h1>");
+        res.json({ success: true, message: "Laporan berhasil terkirim ke Admin!" });
     });
 });
 
 // ==========================================
-// 🚀 API DASHBOARD ADMIN
+// 🚀 API STATISTIK & DATA DASHBOARD ADMIN (FIXED!)
 // ==========================================
-
-// 1. Ambil Angka Statistik Ringkasan
 app.get('/api/admin/stats', (req, res) => {
     const queryTotalKamar = "SELECT COUNT(*) AS total FROM kamar";
     const queryKamarTerisi = "SELECT COUNT(*) AS total FROM kamar WHERE LOWER(status) = 'terisi' OR LOWER(status) = 'booked' OR status = '0'";
+    const queryLaporan = "SELECT id, nomor_kamar, kategori, deskripsi_kendala, status FROM laporan_kerusakan ORDER BY id DESC";
+    
+    // Perbaikan hitungan laporan aktif (hanya menghitung yang belum berstatus 'Selesai')
+    const queryLaporanAktif = "SELECT COUNT(*) AS total FROM laporan_kerusakan WHERE LOWER(TRIM(status)) != 'selesai'";
     
     db.query(queryTotalKamar, (err, resTotal) => {
-        if (err) {
-            console.error("Gagal hitung total kamar:", err);
-            return res.status(500).json({ success: false, message: "Error DB Total Kamar" });
-        }
+        if (err) return res.status(500).json({ success: false, message: "Error DB Total Kamar" });
         
-        db.query(queryKamarTerisi, (err, resTerisi) => {
-            if (err) {
-                console.error("Gagal hitung kamar terisi:", err);
-                return res.status(500).json({ success: false, message: "Error DB Kamar Terisi" });
-            }
+        db.query(queryKamarTerisi, (err2, resTerisi) => {
+            if (err2) return res.status(500).json({ success: false, message: "Error DB Kamar Terisi" });
             
-            const totalSemuaKamar = resTotal[0].total || 0;
-            const totalKamarTerisi = resTerisi[0].total || 0;
-            const sisaKamarTersedia = totalSemuaKamar - totalKamarTerisi;
-            
-            res.json({
-                success: true,
-                totalPenghuni: totalKamarTerisi,
-                kamarTersedia: sisaKamarTersedia,
-                laporanBaru: 0
+            db.query(queryLaporan, (err3, resLaporan) => {
+                if (err3) return res.status(500).json({ success: false, message: "Error DB Laporan" });
+                
+                db.query(queryLaporanAktif, (err4, resLaporanAktif) => {
+                    if (err4) return res.status(500).json({ success: false, message: "Error DB Laporan Aktif" });
+                    
+                    const totalSemuaKamar = resTotal[0].total || 0;
+                    const totalKamarTerisi = resTerisi[0].total || 0;
+                    const sisaKamarTersedia = totalSemuaKamar - totalKamarTerisi;
+                    const jumlahLaporanBaru = resLaporanAktif[0].total || 0;
+                    
+                    res.json({
+                        success: true,
+                        totalPenghuni: totalKamarTerisi,
+                        kamarTersedia: sisaKamarTersedia,
+                        laporanBaru: jumlahLaporanBaru, 
+                        laporanData: resLaporan 
+                    });
+                });
             });
         });
     });
 });
 
-// 2. Ambil List Data Pemesanan Kamar (VERSI AMAN - PASTI MUNCUL)
-app.get('/api/admin/bookings', (req, res) => {
-    // Query ini akan mengambil semua data yang statusnya BUKAN 'Disetujui'
-    const sql = "SELECT * FROM booking WHERE status_booking != 'Disetujui' OR status_booking IS NULL";
-    
+// ==========================================
+// 🚀 API UNTUK MENGAMBIL DATA BOOKING YANG PENDING (TABEL KONFIRMASI)
+// ==========================================
+const handleGetBookingsPending = (req, res) => {
+    const sql = "SELECT * FROM booking WHERE LOWER(TRIM(status_booking)) = 'pending' OR status_booking IS NULL OR status_booking = ''";
     db.query(sql, (err, results) => {
         if (err) {
-            console.error("Gagal mengambil data booking:", err);
-            return res.status(500).json({ success: false, message: "Gagal mengambil data." });
+            console.error("Gagal mengambil data booking pending:", err.message);
+            return res.status(500).json({ success: false, message: "Gagal mengambil data booking." });
         }
         res.json({ success: true, data: results });
     });
-});
-// =======================================================
-// 🚀 API UNTUK MENYETUJUI PEMESANAN (OTOMATIS UBAH ROLE USER -> PENGHUNI)
-// =======================================================
-app.put('/api/admin/bookings/approve/:id', (req, res) => {
+};
+
+// Kita daftarkan ke seluruh kemungkinan endpoint yang dipanggil frontend kamu
+app.get('/api/admin/bookings', handleGetBookingsPending);
+app.get('/api/admin/booking', handleGetBookingsPending);
+app.get('/api/bookings', handleGetBookingsPending);
+app.get('/api/booking', handleGetBookingsPending);
+
+// ==========================================
+// 🚀 API BOOKINGS ADMIN (APPROVE)
+// ==========================================
+const fungsiApproveBooking = (req, res) => {
     const bookingId = req.params.id;
 
-    // 1. Ambil data dari tabel 'booking' 
     db.query('SELECT * FROM booking WHERE id = ?', [bookingId], (err, results) => {
         if (err) {
             console.error("Detail error backend saat approve:", err);
-            return res.status(500).json({ success: false, message: "Gagal menyetujui, ada gangguan koneksi ke database." });
+            return res.status(500).json({ success: false, message: "Gagal menyetujui, ada gangguan koneksi." });
         }
 
         if (!results || results.length === 0) {
@@ -265,106 +298,136 @@ app.put('/api/admin/bookings/approve/:id', (req, res) => {
 
         const dataSewa = results[0];
 
-        // VALIDASI: Cegah data cacat
         if (!dataSewa.nomor_kamar || dataSewa.nomor_kamar === '-') {
             return res.status(400).json({ 
                 success: false, 
-                message: "Gagal menyetujui. Nomor kamar pada data pemesanan ini tidak valid atau kosong!" 
+                message: "Gagal menyetujui. Nomor kamar tidak valid!" 
             });
         }
 
-        // 2. Update status_booking menjadi 'Disetujui'
         db.query("UPDATE booking SET status_booking = 'Disetujui' WHERE id = ?", [bookingId], (errUpdateBooking) => {
             if (errUpdateBooking) {
-                console.error("Gagal update status booking:", errUpdateBooking);
                 return res.status(500).json({ success: false, message: "Gagal memperbarui status pemesanan." });
             }
 
-            // 3. Sinkronisasi status kamar di tabel 'kamar' menjadi 'terisi'
             db.query("UPDATE kamar SET status = 'terisi' WHERE nomor_kamar = ?", [dataSewa.nomor_kamar], (errUpdateKamar) => {
                 if (errUpdateKamar) {
-                    console.error("Gagal update status kamar:", errUpdateKamar);
-                    return res.status(500).json({ success: false, message: "Booking disetujui, tetapi gagal memperbarui status fisik kamar." });
+                    return res.status(500).json({ success: false, message: "Gagal memperbarui status fisik kamar." });
                 }
 
-                // 4. 🔥 LANGKAH SAKTI: Otomatis ubah role user tersebut menjadi 'penghuni' di tabel users
                 db.query("UPDATE users SET role = 'penghuni' WHERE id = ?", [dataSewa.id_user], (errUpdateRole) => {
-                    if (errUpdateRole) {
-                        console.error("Gagal update role user menjadi penghuni:", errUpdateRole);
-                        // Kita tetap loloskan res.json karena booking & kamar sudah aman, tapi beri info log
-                    }
-                    
-                    // Sukses besar! Kirim respon balik ke frontend
-                    res.json({ success: true, message: "Pemesanan berhasil disetujui dan user resmi menjadi Penghuni Kost!" });
+                    res.json({ success: true, message: "Pemesanan disetujui, user resmi jadi Penghuni!" });
                 });
             });
         });
     });
-});
-// 3. JALUR UNTUK MENGAMBIL DATA TABEL PENGHUNI (Yang Sudah Disetujui)
-app.get('/api/admin/penghuni', (req, res) => {
-    const sql = "SELECT * FROM booking WHERE status_booking = 'Disetujui'";
-    db.query(sql, (err, results) => {
-        if (err) {
-            console.error("Gagal mengambil data penghuni:", err);
-            return res.status(500).json({ success: false, message: "Gagal mengambil data penghuni." });
-        }
-        res.json({ success: true, data: results });
-    });
-});
-app.get('/api/fix-db-v2', (req, res) => {
-    // Menambahkan kolom status_booking agar kita bisa membedakan mana yang masih pending dan mana yang sudah jadi penghuni
-    const sqlAddColumn = "ALTER TABLE booking ADD COLUMN status_booking VARCHAR(20) DEFAULT 'Pending'";
-    db.query(sqlAddColumn, (err, result) => {
-        if (err) {
-            return res.send("Kolom mungkin sudah ada atau error: " + err.message);
-        }
-        res.send("<h1>Mantap! Kolom status_booking berhasil ditambahkan ke database Aiven.</h1>");
-    });
-});
-// ==========================================
-// 🚀 API UNTUK MENGHAPUS / MENOLAK PEMESANAN
-// ==========================================
+};
+
+app.put('/api/admin/bookings/approve/:id', fungsiApproveBooking);
+app.put('/api/admin/booking/approve/:id', fungsiApproveBooking);
+app.post('/api/admin/bookings/approve/:id', fungsiApproveBooking);
+app.post('/api/admin/booking/approve/:id', fungsiApproveBooking);
+
 app.delete('/api/admin/bookings/reject/:id', (req, res) => {
     const idBooking = req.params.id;
     const sql = "DELETE FROM booking WHERE id = ? OR nama_lengkap = ?"; 
-    
     db.query(sql, [idBooking, idBooking], (err, result) => {
-        if (err) {
-            console.error("Gagal hapus data:", err);
-            return res.status(500).json({ success: false, message: err.message });
-        }
+        if (err) return res.status(500).json({ success: false, message: err.message });
         res.json({ success: true, message: "Pemesanan berhasil ditolak & dihapus!" });
     });
 });
 
 // ==========================================
-// 🚀 2. JALUR SAKTI: BERSIHKAN DATA CACAT LAMA
+// 🚀 API DATA PENGHUNI (YANG DISETUJUI)
 // ==========================================
+app.get('/api/admin/penghuni', (req, res) => {
+    const sql = "SELECT * FROM booking WHERE status_booking = 'Disetujui'";
+    db.query(sql, (err, results) => {
+        if (err) {
+            return res.status(500).json({ success: false, message: "Gagal mengambil data penghuni." });
+        }
+        res.json({ success: true, data: results });
+    });
+});
+
+// ==========================================
+// 🚀 API ADMIN: AMBIL SEMUA DATA LAPORAN KERUSAKAN
+// ==========================================
+app.get('/api/admin/laporan', (req, res) => {
+    const sql = "SELECT id, nomor_kamar, kategori, deskripsi_kendala, status FROM laporan_kerusakan ORDER BY id DESC";
+    db.query(sql, (err, results) => {
+        if (err) {
+            console.error("Gagal mengambil data laporan admin di DB:", err);
+            return res.status(500).json({ success: false, message: "Gagal mengambil data dari database." });
+        }
+        res.json({ success: true, data: results });
+    });
+});
+
+// ==========================================
+// 🚀 API ADMIN: TANDAI LAPORAN SELESAI
+// ==========================================
+const handleLaporanSelesai = (req, res) => {
+    const idLaporan = req.params.id;
+    const sql = "UPDATE laporan_kerusakan SET status = 'Selesai' WHERE id = ?";
+
+    db.query(sql, [idLaporan], (err, result) => {
+        if (err) {
+            console.error("Gagal update status laporan:", err);
+            return res.status(500).json({ success: false, message: "Gagal mengupdate database." });
+        }
+        res.json({ success: true, message: "Mantap! Laporan berhasil ditandai selesai." });
+    });
+};
+
+app.put('/api/admin/laporan/selesai/:id', handleLaporanSelesai);
+app.post('/api/admin/laporan/selesai/:id', handleLaporanSelesai);
+
+// ==========================================
+// 🚀 JALUR FIXER & UTILITY DB
+// ==========================================
+app.get('/api/fix-db', (req, res) => {
+    const sqlFix = "ALTER TABLE users MODIFY COLUMN role ENUM('admin', 'penghuni', 'user') DEFAULT 'user'";
+    db.query(sqlFix, (err, result) => {
+        if (err) return res.send("Gagal mengupdate database: " + err.message);
+        res.send("<h1>Mantap! Database berhasil di-upgrade. Kolom role bisa menerima 'user'.</h1>");
+    });
+});
+
+app.get('/api/fix-db-v2', (req, res) => {
+    const sqlModifyColumn = "ALTER TABLE booking MODIFY COLUMN status_booking VARCHAR(255) DEFAULT 'Pending'";
+    db.query(sqlModifyColumn, (err, result) => {
+        if (err) return res.send("Gagal memperbaiki ukuran kolom: " + err.message);
+        res.send("<h1>Mantap! Ukuran kolom status_booking berhasil diperbesar menjadi VARCHAR(255). Silakan isi booking kembali!</h1>");
+    });
+});
+
 app.get('/api/bersihkan-data', (req, res) => {
     db.query("TRUNCATE TABLE booking", (err, result) => {
-        if (err) {
-            return res.send("Gagal membersihkan data: " + err.message);
-        }
-        res.send(`
-            <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
-                <h1 style="color: #2e7d32;">Berhasil! 🧹✨</h1>
-                <p>Semua data lama yang rusak sudah dihapus bersih dari database Aiven.</p>
-                <a href="/dashboard-admin.html" style="background: #1a1a1a; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Kembali ke Dashboard Admin</a>
-            </div>
-        `);
+        if (err) return res.send("Gagal membersihkan data: " + err.message);
+        res.send("<h1 style='color: #2e7d32; text-align:center;'>Berhasil! Semua data lama dibersihkan.</h1>");
     });
 });
-// JALUR DARURAT: MEMPERBAIKI ROLE AYU NINGSIH DI DATABASE
+
 app.get('/api/fix-ayu-sekarang', (req, res) => {
     db.query("UPDATE users SET role = 'penghuni' WHERE nama_lengkap LIKE '%Ayu%'", (err, result) => {
-        if (err) {
-            return res.status(500).send("Gagal mengupdate database: " + err.message);
-        }
-        res.send("<h1>Selesai! Akun Ayu Ningsih di database cloud sekarang SUDAH RESMI JADI PENGHUNI. Silakan coba login ulang!</h1>");
+        if (err) return res.status(500).send("Gagal update database: " + err.message);
+        res.send("<h1>Selesai! Akun Ayu Ningsih resmi jadi Penghuni. Silakan login ulang!</h1>");
     });
 });
-// 6. JALANKAN SERVER
+
+app.get('/api/fix-laporan', (req, res) => {
+    const sqlStatusAja = "ALTER TABLE laporan_kerusakan ADD COLUMN status VARCHAR(50) DEFAULT 'Belum Ditangani'";
+    db.query(sqlStatusAja, (err, result) => {
+        if (err) {
+            console.error("Detail Error:", err.message);
+            return res.send("<h1>Waduh, cek terminal! Error: " + err.message + "</h1>");
+        }
+        res.send("<h1>FIXED! Kolom 'status' sekarang resmi masuk ke database. Silakan tes kirim laporannya, Ta!</h1>");
+    });
+});
+
+// JALANKAN SERVER
 app.listen(PORT, () => {
     console.log(`==================================================`);
     console.log(`Server Node.js kamu sudah jalan, silakan buka:`);

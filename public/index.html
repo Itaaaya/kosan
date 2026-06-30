@@ -59,7 +59,8 @@
                 <div class="slider" data-slide="0">
                     <div class="slider-slides">
                         <img src="PicKamarA.jpeg" alt="Tipe A - 1">
-                        <img src="PicKamarA_2.jpeg" alt="Tipe A - 2">
+                        <img src="detailA1.jpg" alt="Tipe A - 2">
+                        <img src="detailA4.jpg" alt="Tipe A - 3">
                     </div>
                     <button class="slide-btn prev" onclick="moveSlide(this, -1)">❮</button>
                     <button class="slide-btn next" onclick="moveSlide(this, 1)">❯</button>
@@ -74,7 +75,8 @@
                 <div class="slider" data-slide="0">
                     <div class="slider-slides">
                         <img src="PicKamarB.jpeg" alt="Tipe B - 1">
-                        <img src="PicKamarB_2.jpeg" alt="Tipe B - 2">
+                        <img src="detailB2.jpeg" alt="Tipe B - 2">
+                        <img src="detailB4.jpeg" alt="Tipe B - 3">
                     </div>
                     <button class="slide-btn prev" onclick="moveSlide(this, -1)">❮</button>
                     <button class="slide-btn next" onclick="moveSlide(this, 1)">❯</button>
@@ -89,7 +91,8 @@
                 <div class="slider" data-slide="0">
                     <div class="slider-slides">
                         <img src="PicKamarC.jpeg" alt="Tipe C - 1">
-                        <img src="PicKamarC_2.jpeg" alt="Tipe C - 2">
+                        <img src="detailC3.jpeg" alt="Tipe C - 2">
+                        <img src="detailC4.jpeg" alt="Tipe C - 3">
                     </div>
                     <button class="slide-btn prev" onclick="moveSlide(this, -1)">❮</button>
                     <button class="slide-btn next" onclick="moveSlide(this, 1)">❯</button>
@@ -104,7 +107,8 @@
                 <div class="slider" data-slide="0">
                     <div class="slider-slides">
                         <img src="PicKamarD.jpeg" alt="Tipe D - 1">
-                        <img src="PicKamarD_2.jpeg" alt="Tipe D - 2">
+                        <img src="detailD1.jpeg" alt="Tipe D - 2">
+                        <img src="detailD2.jpeg" alt="Tipe D - 3">
                     </div>
                     <button class="slide-btn prev" onclick="moveSlide(this, -1)">❮</button>
                     <button class="slide-btn next" onclick="moveSlide(this, 1)">❯</button>
@@ -191,7 +195,7 @@
             localStorage.setItem('halamanTerakhir', window.location.href);
         }
 
-        // 1. Logika Login & Tampilan Profil & Logout Dinamis
+        // 1. Logika Login & Tampilan Profil Dinamis (VERSI BERSIH & ELEGAN)
         document.addEventListener("DOMContentLoaded", () => {
             const authContainer = document.getElementById("authContainer");
             
@@ -203,9 +207,9 @@
             // Jika sudah login, ubah tampilan tombol secara dinamis
             if (isLoggedIn === "true" && userNama && userRole) {
                 if (userRole === "user") {
-                    // JIKA USER BIASA: Muncul nama dan tombol LOGOUT merah langsung
+                    // JIKA USER BIASA: Muncul nama bersih tanpa emot aneh
                     authContainer.innerHTML = `
-                        <span style="color: #333; font-weight: bold; margin-right: 10px; font-size: 13px;">👤 ${userNama}</span>
+                        <span style="color: #333; font-weight: 500; margin-right: 15px; font-size: 14px; font-family: 'Montserrat', sans-serif;">${userNama}</span>
                         <a href="#" id="btn-logout-umum" class="login-btn" style="background-color: #e53e3e !important; color: white !important;">LOGOUT</a>
                     `;
 
@@ -217,13 +221,15 @@
                         window.location.reload(); 
                     });
                 } else {
-                    // JIKA ADMIN ATAU PENGHUNI: Berubah jadi tombol hijau ke dashboard masing-masing
+                    // 🔥 JIKA ADMIN ATAU PENGHUNI: Tulisan status dan emot jelek DIHAPUS TOTAL!
+                    // Cuma nampilin nama panggilan/nama user aja dengan background aesthetic
                     authContainer.innerHTML = `
-                        <a href="#" id="dashboardBtn" class="login-btn" style="background-color: #2e7d32 !important; color: white !important;">
-                            👤 ${userNama} (${userRole.toUpperCase()})
+                        <a href="#" id="dashboardBtn" class="login-btn" style="background-color: #3c5a2c !important; color: white !important; font-family: 'Montserrat', sans-serif; text-transform: uppercase;">
+                            ${userNama}
                         </a>
                     `;
 
+                    // Jalur redirect otomatis sesuai role
                     document.getElementById("dashboardBtn").addEventListener("click", (e) => {
                         e.preventDefault(); 
                         if (userRole === "admin") {
@@ -235,7 +241,6 @@
                 }
             }
         });
-
         // 2. Logika Menu Sidebar (Mobile)
         function toggleMenu() {
             var navbar = document.getElementById("sidebar");

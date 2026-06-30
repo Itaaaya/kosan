@@ -9,28 +9,42 @@
 </head>
 <body style="background-color: #f4f7f6; margin: 0; padding: 0; font-family: 'Poppins', sans-serif;">
 
-    <header class="dashboard-header admin-header" style="background-color: #1a1a1a; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-        <div class="logo-dash">
-            <h1 style="margin: 0; font-size: 24px; color: #fff;">Dashboard Admin</h1>
-            <p class="admin-subtitle" style="margin: 0; font-size: 12px; color: #a0aec0;">Admin Control Panel • Kost Yu</p>
+    <header>
+        <div class="logo">
+            <img src="PicKostYu.jpeg" alt="Logo Kost Yu">
+            <div class="logo-text">
+                <h1>Kost Yu</h1>
+                <span class="tagline">Admin Control Panel</span>
+            </div>
         </div>
+
+        <div class="menu-toggle" onclick="toggleMenu()">☰</div>
         
-        <nav style="display: flex; align-items: center; gap: 20px;">
-            <a href="index.html" style="color: #cbd5e0; text-decoration: none; font-size: 14px; font-weight: 500;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#cbd5e0'">Lihat Beranda Utama</a>
+        <nav id="sidebar">
+            <a href="index.html" class="nav-link">BERANDA</a>
             
-            <span id="loginBtn" style="background-color: #2e7d32; color: white; padding: 6px 15px; border-radius: 4px; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                    <circle cx="12" cy="7" r="4"></circle>
-                </svg>
-                Admin
-            </span>
+            <div class="dropdown">
+                <a href="#" class="dropdown-toggle" onclick="toggleDropdown(event)">KAMAR <span class="arrow">▾</span></a>
+                <div class="dropdown-menu">
+                    <a href="kamarA.html">TIPE A</a>
+                    <a href="kamarB.html">TIPE B</a>
+                    <a href="kamarC.html">TIPE C</a>
+                    <a href="kamarD.html">TIPE D</a>
+                </div>
+            </div>
+            <a href="layanan.html" class="nav-link">FASILITAS</a>
+            <a href="informasi.html" class="nav-link">INFORMASI</a>
             
-            <a href="index.html" onclick="logoutAdmin()" class="logout-btn" style="background-color: #e53e3e; color: white; padding: 6px 15px; border-radius: 4px; text-decoration: none; font-size: 14px; font-weight: 500;">Logout</a>
+            <div id="authContainer" style="display: inline-block;">
+                <span id="loginBtn" style="color: #333; font-weight: 600; margin-right: 15px; font-size: 14px; font-family: 'Montserrat', sans-serif;">ADMIN</span>
+                <a href="index.html" onclick="logoutAdmin(event)" class="login-btn" style="background-color: #e53e3e !important; color: white !important;">LOGOUT</a>
+            </div>
         </nav>
+
+        <div class="overlay" onclick="toggleMenu()"></div>
     </header>
 
-    <div class="dashboard-container" style="max-width: 1100px; margin: 30px auto; padding: 0 20px;">
+    <div class="dashboard-container" style="max-width: 1100px; margin: 120px auto 30px auto; padding: 0 20px;">
         
         <div class="welcome-section" style="margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#2d3748" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -126,14 +140,50 @@
 
     </div>
 
+    <div id="modalDetail" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease;">
+        <div style="background: #ffffff; width: 90%; max-width: 550px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; font-family: 'Poppins', sans-serif; animation: slideUp 0.3s ease;">
+            
+            <div style="background: #1a1a1a; color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.5px;">Detail Formulir Penghuni</h3>
+                </div>
+                <span onclick="tutupModal()" style="font-size: 28px; cursor: pointer; color: #a0aec0; line-height: 1;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a0aec0'">&times;</span>
+            </div>
+
+            <div id="isiModalDetail" style="padding: 25px; max-height: 70vh; overflow-y: auto;"></div>
+
+            <div style="background: #f7fafc; padding: 15px 25px; display: flex; justify-content: flex-end; border-top: 1px solid #edf2f7;">
+                <button onclick="tutupModal()" style="background: #e53e3e; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#c53030'" onmouseout="this.style.background='#e53e3e'">
+                    Tutup Selesai
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             loadStatistik();
             loadBookingData();
             loadLaporanData();
-            loadPenghuniData(); // Memuat data penghuni aktif otomatis saat halaman dibuka
+            loadPenghuniData();
             cekStatusLogin();
         });
+
+        // Fungsi Handler Responsive Sidebar 
+        function toggleMenu() {
+            var navbar = document.getElementById("sidebar");
+            var overlay = document.querySelector(".overlay");
+            navbar.classList.toggle("active");
+            overlay.classList.toggle("active");
+        }
+
+        // Fungsi Handler Dropdown Navigasi
+        function toggleDropdown(e) {
+            e.preventDefault();
+            var dropdown = e.target.closest('.dropdown');
+            dropdown.classList.toggle('open');
+        }
 
         function cekStatusLogin() {
             const loginBtn = document.getElementById("loginBtn");
@@ -142,7 +192,7 @@
             const userIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>`;
 
             if (isLoggedIn === "true" && loginBtn && userNama) {
-                loginBtn.innerHTML = `${userIcon} ${userNama} (ADMIN)`;
+                loginBtn.innerHTML = `${userIcon} ${userNama.toUpperCase()} (ADMIN)`;
             }
         }
 
@@ -163,7 +213,8 @@
                 document.getElementById('statLaporan').innerText = 0;
             }
         }
-async function loadBookingData() {
+
+        async function loadBookingData() {
             try {
                 const response = await fetch('/api/admin/bookings');
                 const result = await response.json();
@@ -179,7 +230,6 @@ async function loadBookingData() {
                             statusDokumen = `<span class="badge badge-success" style="background-color: #c6f6d5; color: #2f855a; padding: 4px 10px; border-radius: 12px; font-size: 12px;">Lengkap</span>`;
                         }
 
-                        // AMAN & KUAT: Mencari ID dari segala kemungkinan nama kolom database kamu
                         const idBooking = book.id || book.id_booking || book.id_pemesanan || book._id;
                         const nama = book.nama_lengkap || book.nama || 'Tanpa Nama';
                         const wa = book.nomor_wa || book.no_hp || book.no_whatsapp || '-';
@@ -211,7 +261,6 @@ async function loadBookingData() {
                                     
                                     <div style="display: flex; gap: 5px;">
                                         <button onclick="setujuiBooking('${idBooking}', '${nama}')" style="background-color: #2e7d32; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; flex: 1;">Setujui</button>
-                                        
                                         <button onclick="tolakBooking('${idBooking}', '${nama}')" style="background-color: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; flex: 1;">Tolak</button>
                                     </div>
                                 </td>
@@ -226,63 +275,25 @@ async function loadBookingData() {
                 document.getElementById('bookingTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Belum ada data pemesanan kamar baru di database.</td></tr>`;
             }
         }
-        // FUNGSI BACKEND BARU: PROSES PERSETUJUAN BOOKING (PINDAH KE TABEL PENGHUNI)
-        async function setujuiBooking(idBooking, nama) {
-            if (!idBooking || idBooking === 'undefined') {
-                alert("ID Pemesanan tidak valid.");
-                return;
-            }
-            if (confirm(`Apakah Anda yakin ingin MENYETUJUI pemesanan dari ${nama}?`)) {
-                try {
-                    const response = await fetch(`/api/admin/bookings/approve/${idBooking}`, {
-                        method: 'PUT'
-                    });
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        alert(result.message);
-                        loadBookingData();   // Refresh daftar pesanan pending
-                        loadPenghuniData();  // Refresh daftar penghuni kos aktif
-                        loadStatistik();     // Update angka dashboard kartu statistik
-                    } else {
-                        alert("Gagal memproses persetujuan: " + result.message);
-                    }
-                } catch (error) {
-                    console.error("Error saat menyetujui booking:", error);
-                    alert("Gagal menyetujui, ada gangguan koneksi ke database.");
-                }
-            }
-        }
 
-        // FUNGSI BACKEND BARU: MEMUAT DATA PENGHUNI KOS AKTIF
-        async function loadPenghuniData() {
-            try {
-                const response = await fetch('/api/admin/penghuni');
-                const result = await response.json();
-                const tbody = document.getElementById('penghuniTableBody');
-                
-                if (result.success && result.data && result.data.length > 0) {
-                    tbody.innerHTML = '';
-                    result.data.forEach(p => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><strong>${p.nama_lengkap || '-'}</strong></td>
-                                <td>${p.tipe_kamar || '-'} (<strong>Kamar ${p.nomor_kamar || '-'}</strong>)</td>
-                                <td style="color: #0288d1; font-weight: 500;">📞 ${p.nomor_wa || '-'}</td>
-                                <td>${p.tanggal_masuk || '-'}</td>
-                                <td><span style="background-color: #c6f6d5; color: #2f855a; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${p.durasi_sewa || '-'} Bulan</span></td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Belum ada penghuni kos resmi yang terdaftar aktif.</td></tr>`;
-                }
-            } catch (error) {
-                console.error("Gagal memuat data tabel penghuni:", error);
-                document.getElementById('penghuniTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Gagal mengambil data penghuni dari database.</td></tr>`;
-            }
+// Contoh jika ini fungsi untuk menyetujui booking
+async function setujuiBooking(id) {
+    try {
+        const response = await fetch(`/api/admin/bookings/approve/${id}`, {
+            method: 'PUT', // 👈 WAJIB PAKAI PUT SESUAI SERVER.JS
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await response.json();
+        if (result.success) {
+            alert(result.message);
+            location.reload(); // Refresh halaman
+        } else {
+            alert(result.message);
         }
-
+    } catch (error) {
+        alert("Terjadi kesalahan sistem saat menghubungi server.");
+    }
+}
         async function tolakBooking(idBooking, nama) {
             if (!idBooking || idBooking === 'undefined') {
                 alert("ID Pemesanan tidak valid atau tidak ditemukan.");
@@ -311,7 +322,132 @@ async function loadBookingData() {
             }
         }
 
-        function bukaDetailAman(base64Payload, totalHargaFormatted) {
+        async function loadPenghuniData() {
+            try {
+                const response = await fetch('/api/admin/penghuni');
+                const result = await response.json();
+                const tbody = document.getElementById('penghuniTableBody');
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    tbody.innerHTML = '';
+                    result.data.forEach(p => {
+                        tbody.innerHTML += `
+                            <tr>
+                                <td><strong>${p.nama_lengkap || '-'}</strong></td>
+                                <td>${p.tipe_kamar || '-'} (<strong>Kamar ${p.nomor_kamar || '-'}</strong>)</td>
+                                <td style="color: #0288d1; font-weight: 500;">📞 ${p.nomor_wa || '-'}</td>
+                                <td>${p.tanggal_masuk || '-'}</td>
+                                <td><span style="background-color: #c6f6d5; color: #2f855a; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${p.durasi_sewa || '-'} Bulan</span></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Belum ada penghuni kos resmi yang terdaftar aktif.</td></tr>`;
+                }
+            } catch (error) {
+                console.error("Gagal memuat data tabel penghuni:", error);
+                document.getElementById('penghuniTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Gagal mengambil data penghuni dari database.</td></tr>`;
+            }
+        }
+async function loadLaporanData() {
+    try {
+        const response = await fetch('/api/admin/laporan');
+        const result = await response.json();
+        const tbody = document.getElementById('laporanTableBody');
+        
+        if (result.success && result.data && result.data.length > 0) {
+            tbody.innerHTML = ''; // Kosongkan text loading
+            
+            result.data.forEach(lap => {
+                const nomorKamar = lap.nomor_kamar || '-';
+                const kategori = lap.kategori || '-';
+                const deskripsi = lap.deskripsi_kendala || '-'; 
+                const status = lap.status || 'Belum Ditangani';
+                
+                // 🚀 FIX DI SINI: Jika tanggal dari DB kosong, buat otomatis tanggal hari ini
+                const tanggal = lap.tanggal_format || new Date().toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'}); 
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>
+                            <strong>Kamar ${nomorKamar}</strong><br>
+                            <span style="font-size: 11px; color: #718096; display: block; margin-top: 2px;">📅 ${tanggal}</span>
+                        </td>
+                        <td><span style="color: #4a5568; font-weight: 600;">${kategori}</span></td>
+                        <td><p style="margin:0; font-size:13px; color:#4a5568;">${deskripsi}</p></td>
+                        <td>
+                            <span class="badge" style="background-color: ${status === 'Selesai' ? '#c6f6d5' : '#fee2e2'}; color: ${status === 'Selesai' ? '#2f855a' : '#ef4444'}; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">
+                                ${status}
+                            </span>
+                        </td>
+                        <td>
+                            ${status !== 'Selesai' ? `
+                                <button style="background-color: #2e7d32; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 500;" 
+                                    onclick="tandaiSelesai('${lap.id}')">
+                                    ✓ Selesai
+                                </button>
+                            ` : '<span style="color:#718096; font-size:12px;">No Action</span>'}
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Aman! Belum ada laporan kerusakan dari penghuni kost.</td></tr>`;
+        }
+    } catch (error) {
+        console.error("Gagal memuat data laporan di admin:", error);
+        document.getElementById('laporanTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Gagal memuat database laporan kerusakan.</td></tr>`;
+    }
+}// Contoh cara fetch data laporan di halaman admin
+async function muatLaporanAdmin() {
+    try {
+        const response = await fetch('/api/admin/laporan');
+        const result = await response.json();
+        
+        if (result.success) {
+            const tabel = document.getElementById('tbody-laporan'); // Sesuaikan id tabel kamu
+            tabel.innerHTML = ''; // Kosongkan loading
+            
+            result.data.forEach(laporan => {
+                tabel.innerHTML += `
+                    <tr>
+                        <td>${laporan.nomor_kamar}</td>
+                        <td>${laporan.kategori}</td>
+                        <td>${laporan.deskripsi_kendala}</td> <td><span class="badge">${laporan.status}</span></td>
+                    </tr>
+                `;
+            });
+        }
+    } catch (error) {
+        console.error("Error memuat data laporan di admin:", error);
+    }
+}
+async function tandaiSelesai(id) {
+    // Munculkan konfirmasi sebelum menyelesaikan
+    if (!confirm("Yakin ingin menandai laporan ini sudah selesai/diperbaiki?")) return;
+
+    try {
+        const response = await fetch(`/api/admin/laporan/selesai/${id}`, {
+            method: 'PUT', // 👈 INI HARUS PUT, KARENA DI SERVER.JS KAMU PAKAI APP.PUT
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            alert(result.message); // Muncul "Mantap! Laporan berhasil ditandai selesai."
+            location.reload(); // Otomatis refresh halaman
+        } else {
+            alert("Gagal: " + result.message);
+        }
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Terjadi kesalahan sistem saat menghubungi server.");
+    }
+}
+    function bukaDetailAman(base64Payload, totalHargaFormatted) {
             try {
                 const decodedString = decodeURIComponent(escape(atob(base64Payload)));
                 const book = JSON.parse(decodedString);
@@ -391,66 +527,19 @@ async function loadBookingData() {
             document.getElementById('modalDetail').style.display = 'none';
         }
 
-        async function loadLaporanData() {
-            try {
-                const response = await fetch('/api/admin/laporan');
-                const result = await response.json();
-                const tbody = document.getElementById('laporanTableBody');
-                
-                if (result.success && result.data && result.data.length > 0) {
-                    tbody.innerHTML = '';
-                    result.data.forEach(lap => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><strong>${lap.nomor_kamar} (${lap.nama_penghuni || '-'})</strong></td>
-                                <td>${lap.kategori}</td>
-                                <td>${lap.deskripsi}</td>
-                                <td><span class="badge badge-danger">${lap.status}</span></td>
-                                <td>
-                                    <button class="btn-selesai" onclick="alert('Laporan kamar ${lap.nomor_kamar} ditandai selesai!')">Tandai Selesai</button>
-                                </td>
-                            </tr>
-                        `;
-                    });
-                } else {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Aman! Belum ada laporan kerusakan dari penghuni kost.</td></tr>`;
-                }
-            } catch (error) {
-                console.error("Gagal memuat data laporan:", error);
-                document.getElementById('laporanTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Aman! Belum ada laporan kerusakan dari penghuni kost.</td></tr>`;
-            }
-        }
-
-        function logoutAdmin() {
+        function logoutAdmin(e) {
+            e.preventDefault();
             localStorage.clear();
-            window.location.href = '/login';
+            window.location.href = 'login.html';
         }
     </script>
-
-    <div id="modalDetail" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); align-items: center; justify-content: center; backdrop-filter: blur(5px); animation: fadeIn 0.3s ease;">
-        <div style="background: #ffffff; width: 90%; max-width: 550px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.3); overflow: hidden; font-family: 'Poppins', sans-serif; animation: slideUp 0.3s ease;">
-            
-            <div style="background: #1a1a1a; color: white; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#cbd5e0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-                    <h3 style="margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 0.5px;">Detail Formulir Penghuni</h3>
-                </div>
-                <span onclick="tutupModal()" style="font-size: 28px; cursor: pointer; color: #a0aec0; line-height: 1;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#a0aec0'">&times;</span>
-            </div>
-
-            <div id="isiModalDetail" style="padding: 25px; max-height: 70vh; overflow-y: auto;"></div>
-
-            <div style="background: #f7fafc; padding: 15px 25px; display: flex; justify-content: flex-end; border-top: 1px solid #edf2f7;">
-                <button onclick="tutupModal()" style="background: #e53e3e; color: white; border: none; padding: 10px 25px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#c53030'" onmouseout="this.style.background='#e53e3e'">
-                    Tutup Selesai
-                </button>
-            </div>
-        </div>
-    </div>
 
     <style>
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @media (max-width: 768px) {
+        .dashboard-container { margin-top: 100px !important; }
+    }
     .info-group { margin-bottom: 18px; }
     .info-label { font-size: 11px; text-transform: uppercase; color: #a0aec0; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 2px; display: block; }
     .info-value { font-size: 14px; color: #2d3748; font-weight: 500; margin: 0; }

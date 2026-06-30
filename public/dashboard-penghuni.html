@@ -7,28 +7,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="kostyu.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        /* Style tambahan kosmetik biar tombol berandamu estetik */
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .beranda-btn {
-            color: #3c5a2c;
-            background-color: white;
-            text-decoration: none;
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-        .beranda-btn:hover {
-            background-color: #f4f7f6;
-            transform: translateY(-2px);
-        }
-    </style>
 </head>
 <body style="background-color: #f4f7f6;"> 
     
@@ -54,35 +32,38 @@
             
             <div class="dash-card tagihan-card">
                 <h3>Informasi Tagihan</h3>
-                
                 <div class="status-tagihan belum-lunas">Belum Dibayar</div> 
-                
                 <div class="detail-tagihan">
                     <p>Tagihan Bulan: <strong>Bulan Ini</strong></p>
                     <p>Jatuh Tempo: <strong style="color: #e53e3e;">Tanggal 25</strong></p>
                     <p class="nominal">Rp 1.200.000</p>
                 </div>
-                
                 <button class="btn-bayar" onclick="Swal.fire({ text: 'Fitur pembayaran sedang dalam pengembangan.', icon: 'info', confirmButtonColor: '#3c5a2c' })">Konfirmasi Pembayaran</button>
             </div>
 
             <div class="dash-card lapor-card">
-                <h3>Lapor Kerusakan / Kendala</h3>
-                <form action="#" onsubmit="Swal.fire({ title: 'Berhasil!', text: 'Laporan berhasil dikirim ke Admin!', icon: 'success', confirmButtonColor: '#3c5a2c' }); return false;">
+                <h3>Lapor Kerusakan / Kendala 🛠️</h3>
+                <form id="formLaporanKerusakan">
+                    
+                    <div class="form-group">
+                        <label>Nomor Kamar</label>
+                        <input type="text" id="nomor_kamar" placeholder="Contoh: A03" required>
+                    </div>
+
                     <div class="form-group">
                         <label>Kategori Kendala</label>
-                        <select required>
+                        <select id="kategori" required>
                             <option value="" disabled selected>-- Pilih Kategori --</option>
-                            <option value="ac">AC Bocor/Mati</option>
-                            <option value="air">Kamar Mandi / Saluran Air</option>
-                            <option value="listrik">Listrik / Lampu Mati</option>
-                            <option value="lainnya">Fasilitas Lainnya</option>
+                            <option value="AC Bocor/Mati">AC Bocor/Mati</option>
+                            <option value="Kamar Mandi / Saluran Air">Kamar Mandi / Saluran Air</option>
+                            <option value="Listrik / Lampu Mati">Listrik / Lampu Mati</option>
+                            <option value="Fasilitas Lainnya">Fasilitas Lainnya</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label>Deskripsi Kendala</label>
-                        <textarea rows="3" placeholder="Jelaskan detail kerusakannya di sini..." required></textarea>
+                        <textarea id="deskripsi" rows="3" placeholder="Jelaskan detail kerusakannya di sini..." required></textarea>
                     </div>
 
                     <button type="submit" class="btn-lapor">Kirim Laporan</button>
@@ -94,7 +75,6 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // 1. Cek apakah ada orang yang sedang login
             const sessionUser = localStorage.getItem('user');
 
             if (!sessionUser) {
@@ -109,16 +89,13 @@
                 return;
             }
 
-            // 2. Baca data user yang sedang login
             const dataUser = JSON.parse(sessionUser);
 
-            // 🔥 FITUR AUTO-FIX: Jika namanya Ayu tapi status di browser tertinggal 'user', kita paksa jadi 'penghuni'
             if (dataUser.nama && dataUser.nama.toLowerCase().includes('ayu') && dataUser.role !== 'penghuni') {
                 dataUser.role = 'penghuni';
                 localStorage.setItem('user', JSON.stringify(dataUser));
             }
 
-            // 3. Proteksi Role (Hanya yang berstatus 'penghuni' yang boleh di sini)
             if (dataUser.role !== 'penghuni') {
                 Swal.fire({
                     title: 'Akses Ditolak',
@@ -131,16 +108,60 @@
                 return;
             }
 
-            // 4. Ubah tulisan HTML menjadi nama asli user yang sedang login
             document.getElementById('nama-penghuni').innerText = `Halo, ${dataUser.nama}! 👤`;
 
-            // 5. MENGHIDUPKAN TOMBOL LOGOUT (DIUBAH KE INDEX.HTML)
+            // ENGINE AJAX SEND DATA LAPORAN
+            const formLapor = document.getElementById('formLaporanKerusakan');
+            if (formLapor) {
+                formLapor.addEventListener('submit', async (e) => {
+                    e.preventDefault(); 
+
+                    const nomor_kamar = document.getElementById('nomor_kamar').value;
+                    const kategori = document.getElementById('kategori').value;
+                    const deskripsi = document.getElementById('deskripsi').value;
+
+                    try {
+                        const response = await fetch('/api/laporan', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ nomor_kamar, kategori, deskripsi })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            Swal.fire({
+                                title: 'Berhasil!',
+                                text: 'Laporan kerusakan berhasil dikirim ke Admin!',
+                                icon: 'success',
+                                confirmButtonColor: '#3c5a2c'
+                            });
+                            formLapor.reset(); 
+                        } else {
+                            Swal.fire({
+                                title: 'Gagal Menyimpan!',
+                                text: result.message || 'Terjadi kesalahan sistem database.',
+                                icon: 'error',
+                                confirmButtonColor: '#e53e3e'
+                            });
+                        }
+                    } catch (error) {
+                        console.error("Error kirim data laporan:", error);
+                        Swal.fire({
+                            title: 'Koneksi Putus!',
+                            text: 'Gagal terhubung dengan server backend.',
+                            icon: 'error',
+                            confirmButtonColor: '#e53e3e'
+                        });
+                    }
+                });
+            }
+
+            // LOGOUT BUTTON
             const tombolLogout = document.getElementById('btn-logout'); 
             if (tombolLogout) {
                 tombolLogout.addEventListener('click', function(e) {
                     e.preventDefault(); 
-                    
-                    // Bersihkan memori login
                     localStorage.removeItem('user'); 
                     localStorage.removeItem('isLoggedIn');
                     localStorage.removeItem('userNama');
@@ -152,7 +173,6 @@
                         icon: 'success',
                         confirmButtonColor: '#3c5a2c'
                     }).then(() => {
-                        // 🔥 Tendang ke index.html (Halaman Beranda Utama) biar rapi
                         window.location.href = "index.html";
                     });
                 });

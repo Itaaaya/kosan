@@ -45,7 +45,9 @@
             </div>
             <a href="layanan.html" class="nav-link">FASILITAS</a>
             <a href="informasi.html" class="nav-link">INFORMASI</a>
-            <a href="login.html" class="login-btn">LOGIN</a>
+<div id="authContainer" style="display: inline-block;">
+        <a href="login.html" id="loginBtn" class="login-btn" onclick="simpanHalamanAsal()">LOGIN</a>
+    </div>
         </nav>
 
         <div class="overlay" onclick="toggleMenu()"></div>
@@ -58,11 +60,11 @@
             <img src="PicKamarB.jpeg" class="main-image" alt="">
 
             <div class="thumbnail-container">
-                <img src="detailB1.jpg" alt="">
-                <img src="detailB2.jpg" alt="">
-                <img src="detailB3.jpg" alt="">
-                <img src="detailB4.jpg" alt="">
-                <img src="detailB5.jpg" alt="">
+                <img src="detailB1.jpeg" alt="">
+                <img src="detailB2.jpeg" alt="">
+                <img src="detailB3.jpeg" alt="">
+                <img src="detailB4.jpeg" alt="">
+                <img src="detailB5.jpeg" alt="">
             </div>
 
             <div class="ketersediaan">
@@ -131,6 +133,53 @@
     </footer>
 
     <script>
+        // 1. Fungsi mencatat halaman asal biar kalau login gak bingung arah balik
+function simpanHalamanAsal() {
+    localStorage.setItem('halamanTerakhir', window.location.href);
+}
+
+// 2. Logika Menampilkan Nama Profil Bersih & Elegan
+document.addEventListener("DOMContentLoaded", () => {
+    const authContainer = document.getElementById("authContainer");
+    
+    const isLoggedIn = localStorage.getItem("isLoggedIn");
+    const userNama = localStorage.getItem("userNama");
+    const userRole = localStorage.getItem("userRole");
+
+    // Jika user terdeteksi sudah login, ubah tombol LOGIN jadi nama profil
+    if (isLoggedIn === "true" && userNama && userRole) {
+        if (userRole === "user") {
+            // Tampilan untuk user biasa
+            authContainer.innerHTML = `
+                <span style="color: #333; font-weight: 500; margin-right: 15px; font-size: 14px; font-family: 'Montserrat', sans-serif;">${userNama}</span>
+                <a href="#" id="btn-logout-umum" class="login-btn" style="background-color: #e53e3e !important; color: white !important;">LOGOUT</a>
+            `;
+
+            document.getElementById('btn-logout-umum').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.clear(); 
+                alert("Anda berhasil logout!");
+                window.location.reload(); 
+            });
+        } else {
+            // Tampilan Elegan untuk ADMIN atau PENGHUNI (Tanpa emot jelek & status teks)
+            authContainer.innerHTML = `
+                <a href="#" id="dashboardBtn" class="login-btn" style="background-color: #3c5a2c !important; color: white !important; font-family: 'Montserrat', sans-serif; text-transform: uppercase;">
+                    ${userNama}
+                </a>
+            `;
+
+            document.getElementById("dashboardBtn").addEventListener("click", (e) => {
+                e.preventDefault(); 
+                if (userRole === "admin") {
+                    window.location.href = "dashboard-admin.html";
+                } else if (userRole === "penghuni") {
+                    window.location.href = "dashboard-penghuni.html";
+                }
+            });
+        }
+    }
+});
         function toggleMenu() {
             var navbar = document.getElementById("sidebar");
             var overlay = document.querySelector(".overlay");
