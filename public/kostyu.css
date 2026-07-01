@@ -635,18 +635,25 @@ nav a:hover {
 .dashboard-header nav a:hover {  background: rgba(255,255,255,0.12); } 
 .dashboard-header nav a.active { background: rgba(255,255,255,0.18); color: #e5d39b !important;  }
 
-.dashboard-header .logout-btn { 
-    color: #ffffff !important;
-    text-decoration: none !important;
-    background-color: #e53e3e !important; 
-    padding: 10px 20px !important; 
-    border-radius: 8px !important; 
-    font-weight: 500 !important; 
-    font-size: 15px !important;
-    transition: 0.3s; 
+.dashboard-header .logout-btn{
+    color:#fff;
+    background:#e53e3e;
+    text-decoration:none;
+    padding:10px 20px;
+    border-radius:8px;
+    font-size:15px;
+    font-weight:500;
+    transition:.3s;
 }
-.dashboard-header .logout-btn:hover { 
-    background-color: #c53030 !important; 
+
+.dashboard-header .logout-btn:hover{
+    background:#c53030;
+}
+
+.dashboard-header nav a{
+    font-size:14px;
+    padding:8px 14px;
+    white-space:nowrap;
 }
 
 /* Ditambahkan margin-top 120px agar konten tidak ketutupan header hitam */
@@ -879,9 +886,6 @@ footer {
     white-space:nowrap;
 }
 
-.dashboard-header .logout-btn{
-    padding:8px 14px;
-}
 
   .login-page-wrapper .login-container{
         width: 88%;
@@ -1042,13 +1046,16 @@ footer {
         gap: 3px !important;
     }
 
-    .dashboard-header nav a,
-    #loginBtn,
-    .logout-btn{
-        font-size: 9px !important;
-        padding: 4px 6px !important;
-        white-space: nowrap !important;
-    }
+.dashboard-header nav a{
+    font-size: 9px !important;
+    padding: 4px 6px !important;
+    white-space: nowrap !important;
+}
+#loginBtn{
+    font-size:15px !important;
+    padding:10px 22px !important;
+    font-weight:600;
+}
 
     .logo-dash h1{
         font-size: 15px !important;

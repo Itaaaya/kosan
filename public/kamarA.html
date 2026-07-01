@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function muatKetersediaanKamar() {
         try {
             // Tembak API detail kamar khusus Tipe A yang ada di server.js
-            const respon = await fetch('/api/kamar/detail/A');
+            const respon = await fetch(`/api/kamar/detail/${encodeURIComponent("Tipe A")}`);
             const dataKamar = await respon.json();
             
             // Ambil elemen div pembungkus daftar kamar

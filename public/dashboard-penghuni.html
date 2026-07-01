@@ -10,16 +10,49 @@
 </head>
 <body style="background-color: #f4f7f6;"> 
     
-    <header class="dashboard-header penghuni-header">
-        <div class="logo-dash">
+<header>
+    <div class="logo">
+        <img src="PicKostYu.jpeg" alt="Logo Kost Yu">
+        <div class="logo-text">
             <h1>Kost Yu</h1>
-            <p class="penghuni-subtitle">Panel Penghuni</p>
+            <span class="tagline">Hunian Nyaman & Aman</span>
         </div>
-        <nav class="nav-links">
-            <a href="index.html" class="beranda-btn">🏠 Beranda Utama</a>
-            <a href="#" id="btn-logout" class="logout-btn">Logout</a>
-        </nav>
-    </header>
+    </div>
+
+    <div class="menu-toggle" onclick="toggleMenu()">☰</div>
+
+    <nav id="sidebar">
+
+        <a href="index.html">BERANDA</a>
+
+        <div class="dropdown">
+            <a href="#" class="dropdown-toggle" onclick="toggleDropdown(event)">
+                KAMAR <span class="arrow">▾</span>
+            </a>
+
+            <div class="dropdown-menu">
+                <a href="kamarA.html">TIPE A</a>
+                <a href="kamarB.html">TIPE B</a>
+                <a href="kamarC.html">TIPE C</a>
+                <a href="kamarD.html">TIPE D</a>
+            </div>
+        </div>
+
+        <a href="layanan.html">FASILITAS</a>
+        <a href="informasi.html">INFORMASI</a>
+
+        <a href="dashboard-penghuni.html" class="active">
+            DASHBOARD
+        </a>
+
+        <a href="#" id="btn-logout" class="logout-btn">
+            LOGOUT
+        </a>
+
+    </nav>
+
+    <div class="overlay" onclick="toggleMenu()"></div>
+</header>
 
     <div class="dashboard-container">
         
@@ -91,6 +124,15 @@
     </div>
 
     <script>
+function toggleMenu() {
+    document.getElementById("sidebar").classList.toggle("active");
+    document.querySelector(".overlay").classList.toggle("active");
+}
+
+function toggleDropdown(e) {
+    e.preventDefault();
+    e.target.closest(".dropdown").classList.toggle("open");
+}
         document.addEventListener("DOMContentLoaded", () => {
             const sessionUser = localStorage.getItem('user');
 

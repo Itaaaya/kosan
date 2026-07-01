@@ -217,7 +217,7 @@ document.addEventListener("DOMContentLoaded", () => {
     async function muatKetersediaanKamar() {
         try {
             // Memanggil endpoint khusus data Tipe D
-            const respon = await fetch('/api/kamar/detail/D');
+            const respon = await fetch(`/api/kamar/detail/${encodeURIComponent("Tipe D")}`);
             const dataKamar = await respon.json();
             
             const containerKamar = document.getElementById('daftar-kamar');

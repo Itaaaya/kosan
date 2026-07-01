@@ -127,6 +127,7 @@
                             <th>Kontak WhatsApp</th>
                             <th>Tanggal Masuk</th>
                             <th>Durasi Sewa</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="penghuniTableBody">
@@ -335,9 +336,14 @@ async function setujuiBooking(id) {
                             <tr>
                                 <td><strong>${p.nama_lengkap || '-'}</strong></td>
                                 <td>${p.tipe_kamar || '-'} (<strong>Kamar ${p.nomor_kamar || '-'}</strong>)</td>
-                                <td style="color: #0288d1; font-weight: 500;">📞 ${p.nomor_wa || '-'}</td>
+                                <td style="color: #0288d1; font-weight: 500;">${p.nomor_wa || '-'}</td>
                                 <td>${p.tanggal_masuk || '-'}</td>
                                 <td><span style="background-color: #c6f6d5; color: #2f855a; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;">${p.durasi_sewa || '-'} Bulan</span></td>
+                                <td>
+                                    <button onclick="hapusPenghuni('${p.id || p._id}', '${p.nama_lengkap || '-'}')" 
+                                        style="background-color: #e53e3e; color: white; border: none; padding: 5px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;">
+                                        Hapus
+                                    </button>
                             </tr>
                         `;
                     });
@@ -349,6 +355,39 @@ async function setujuiBooking(id) {
                 document.getElementById('penghuniTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Gagal mengambil data penghuni dari database.</td></tr>`;
             }
         }
+async function hapusPenghuni(id){
+
+    if(!confirm("Yakin ingin menghapus penghuni ini?")){
+        return;
+    }
+
+    try{
+        console.log("ID yang akan dihapus:", id);
+
+        const response = await fetch(`/api/admin/penghuni/${id}`,{
+            method:"DELETE"
+        });
+
+        const result = await response.json();
+
+        if(result.success){
+            alert("Penghuni berhasil dihapus.");
+
+            loadPenghuniData();
+            loadStatistik();
+
+        }else{
+            alert(result.message);
+        }
+
+    }catch(err){
+
+        console.log(err);
+        alert("Terjadi kesalahan.");
+
+    }
+
+}
 async function loadLaporanData() {
     try {
         const response = await fetch('/api/admin/laporan');

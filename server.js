@@ -376,6 +376,90 @@ app.delete('/api/admin/bookings/reject/:id', (req, res) => {
         res.json({ success: true, message: "Pemesanan berhasil ditolak & dihapus!" });
     });
 });
+app.delete("/api/admin/penghuni/:id", (req, res) => {
+
+    const id = req.params.id;
+
+    console.log("ID yang diterima:", id);
+
+    db.query(
+        "SELECT nomor_kamar, id_user FROM booking WHERE id = ?",
+        [id],
+        (err, data) => {
+
+            if (err) {
+                console.log("ERROR SELECT:", err);
+                return res.status(500).json(err);
+            }
+
+            console.log("HASIL SELECT:", data);
+
+            if (data.length === 0) {
+                return res.json({
+                    success: false,
+                    message: "Data tidak ditemukan"
+                });
+            }
+
+            const nomor = data[0].nomor_kamar;
+            const idUser = data[0].id_user;
+
+            console.log("Nomor kamar:", nomor);
+            console.log("ID User:", idUser);
+
+            db.query(
+                "DELETE FROM booking WHERE id=?",
+                [id],
+                (err) => {
+
+                    if (err) {
+                        console.log("ERROR DELETE:", err);
+                        return res.status(500).json(err);
+                    }
+
+                    console.log("DELETE BERHASIL");
+
+                    db.query(
+                        "UPDATE kamar SET status='Kosong', id_penghuni=NULL WHERE nomor_kamar=?",
+                        [nomor],
+                        (err) => {
+
+                            if (err) {
+                                console.log("ERROR UPDATE KAMAR:", err);
+                                return res.status(500).json(err);
+                            }
+
+                            console.log("UPDATE KAMAR BERHASIL");
+
+                            db.query(
+                                "UPDATE users SET role='user' WHERE id=?",
+                                [idUser],
+                                (err) => {
+
+                                    if (err) {
+                                        console.log("ERROR UPDATE USER:", err);
+                                        return res.status(500).json(err);
+                                    }
+
+                                    console.log("SELESAI");
+
+                                    res.json({
+                                        success: true
+                                    });
+
+                                }
+                            );
+
+                        }
+                    );
+
+                }
+            );
+
+        }
+    );
+
+});
 
 // ==========================================
 // 🚀 API DATA PENGHUNI (YANG DISETUJUI)
@@ -511,7 +595,10 @@ app.get('/api/fix-laporan', (req, res) => {
         res.send("<h1>FIXED! Kolom 'status' sekarang resmi masuk ke database. Silakan tes kirim laporannya, Ta!</h1>");
     });
 });
-
+app.delete("/api/test-delete", (req, res) => {
+    console.log("DELETE TEST BERHASIL");
+    res.json({ success: true });
+});
 // JALANKAN SERVER
 app.listen(PORT, () => {
     console.log(`==================================================`);
