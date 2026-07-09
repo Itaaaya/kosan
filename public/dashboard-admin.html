@@ -295,7 +295,6 @@ text-align:left;">
 // Contoh jika ini fungsi untuk menyetujui booking
 async function setujuiBooking(id) {
     try {
-
         const response = await fetch(`/api/admin/bookings/approve/${id}`, {
             method: "PUT",
             headers: {
@@ -305,18 +304,16 @@ async function setujuiBooking(id) {
 
         const result = await response.json();
 
-if(result.success){
+        if (result.success) {
+            // Memunculkan popup
+            document.getElementById("popupBerhasilHapus").style.display = "flex";
 
-    document.getElementById("popupBerhasilHapus").style.display = "flex";
-
-    loadPenghuniData();
-    loadStatistik();
-
-}else{
-
-    document.getElementById("popupGagalHapus").style.display = "flex";
-
-}
+            // Menjalankan reload data otomatis setelahnya
+            loadPenghuniData();
+            loadStatistik();
+        } else {
+            document.getElementById("popupGagalHapus").style.display = "flex";
+        }
 
     }catch(error){
 
