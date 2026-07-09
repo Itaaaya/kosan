@@ -250,13 +250,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // Jalankan fungsi otomatis saat halaman selesai dimuat
         window.addEventListener('DOMContentLoaded', muatKetersediaanKamar);
 
-        function pesanKamarTipeB(event) {
+function pesanKamarTipeB(event) {
     event.preventDefault();
 
     const sudahLogin = localStorage.getItem('isLoggedIn');
 
     if (sudahLogin === 'true') {
-        window.location.href = 'form-booking.html';
+        localStorage.setItem('tipeKamar', 'Tipe B');
+        window.location.href = 'form-booking.html?tipe=' + encodeURIComponent('Tipe B');
     } else {
         localStorage.setItem('halamanTerakhir', window.location.href);
         document.getElementById('popupAksesDitolak').style.display = 'flex';

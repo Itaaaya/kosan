@@ -36,7 +36,22 @@
             <a href="informasi.html" class="nav-link">INFORMASI</a>
             
             <div id="authContainer" style="display: inline-block;">
-                <span id="loginBtn" style="color: #333; font-weight: 600; margin-right: 15px; font-size: 14px; font-family: 'Montserrat', sans-serif;">ADMIN</span>
+<span id="loginBtn"
+style="
+display:block;
+width:100%;
+box-sizing:border-box;
+padding:12px 18px;
+margin-bottom:10px;
+background:#0b2447;
+color:white;
+font-size:15px;
+font-weight:600;
+font-family:'Poppins',sans-serif;
+border-radius:8px;
+text-align:left;">
+    👤 ADMIN
+</span>
                 <a href="index.html" onclick="logoutAdmin(event)" class="login-btn" style="background-color: #e53e3e !important; color: white !important;">LOGOUT</a>
             </div>
         </nav>
@@ -280,49 +295,102 @@
 // Contoh jika ini fungsi untuk menyetujui booking
 async function setujuiBooking(id) {
     try {
+
         const response = await fetch(`/api/admin/bookings/approve/${id}`, {
-            method: 'PUT', // 👈 WAJIB PAKAI PUT SESUAI SERVER.JS
-            headers: { 'Content-Type': 'application/json' }
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
         });
+
         const result = await response.json();
-        if (result.success) {
-            alert(result.message);
-            location.reload(); // Refresh halaman
-        } else {
-            alert(result.message);
-        }
-    } catch (error) {
-        alert("Terjadi kesalahan sistem saat menghubungi server.");
+
+if(result.success){
+
+    document.getElementById("popupBerhasilHapus").style.display = "flex";
+
+    loadPenghuniData();
+    loadStatistik();
+
+}else{
+
+    document.getElementById("popupGagalHapus").style.display = "flex";
+
+}
+
+    }catch(error){
+
+        document.getElementById("isiPopupBerhasil").innerHTML =
+        "Terjadi kesalahan sistem.";
+
+        document.getElementById("popupBerhasil").style.display = "flex";
+
     }
 }
-        async function tolakBooking(idBooking, nama) {
-            if (!idBooking || idBooking === 'undefined') {
-                alert("ID Pemesanan tidak valid atau tidak ditemukan.");
-                return;
-            }
-            
-            if (confirm(`Apakah Anda yakin ingin menolak & menghapus pemesanan dari ${nama}?`)) {
-                try {
-                    const response = await fetch(`/api/admin/bookings/reject/${idBooking}`, {
-                        method: 'DELETE'
-                    });
-                    const result = await response.json();
-                    
-                    if (result.success || response.ok) {
-                        alert(`Pemesanan ${nama} berhasil ditolak!`);
-                        loadBookingData();
-                        loadStatistik();
-                    } else {
-                        alert("Gagal memperbarui status: " + (result.message || "Gagal berkomunikasi dengan database"));
-                    }
-                } catch (error) {
-                    console.error("Error penolakan booking:", error);
-                    alert("Berhasil mengirim perintah, memperbarui tabel...");
+async function tolakBooking(idBooking, nama){
+
+    if(!idBooking || idBooking==="undefined"){
+        return;
+    }
+
+    document.getElementById("isiPopupTolak").innerHTML =
+    `Apakah Anda yakin ingin menolak & menghapus pemesanan dari <b>${nama}</b>?`;
+
+    document.getElementById("popupKonfirmasiTolak").style.display="flex";
+
+    document.getElementById("btnBatalTolak").onclick=function(){
+
+        document.getElementById("popupKonfirmasiTolak").style.display="none";
+
+    };
+
+    document.getElementById("btnYaTolak").onclick=async function(){
+
+        document.getElementById("popupKonfirmasiTolak").style.display="none";
+
+        try{
+
+            const response=await fetch(`/api/admin/bookings/reject/${idBooking}`,{
+                method:"DELETE"
+            });
+
+            const result=await response.json();
+
+            if(result.success || response.ok){
+
+                document.getElementById("isiPopupBerhasil").innerHTML =
+                `Pemesanan <b>${nama}</b> berhasil ditolak.`;
+
+                document.getElementById("popupBerhasil").style.display="flex";
+
+                document.getElementById("btnPopupOK").onclick=function(){
+
+                    document.getElementById("popupBerhasil").style.display="none";
+
                     loadBookingData();
-                }
+                    loadStatistik();
+
+                };
+
+            }else{
+
+                document.getElementById("isiPopupBerhasil").innerHTML=result.message;
+
+                document.getElementById("popupBerhasil").style.display="flex";
+
             }
+
+        }catch(error){
+
+            document.getElementById("isiPopupBerhasil").innerHTML="Terjadi kesalahan sistem.";
+
+            document.getElementById("popupBerhasil").style.display="flex";
+
         }
 
+    };
+
+}
         async function loadPenghuniData() {
             try {
                 const response = await fetch('/api/admin/penghuni');
@@ -355,39 +423,58 @@ async function setujuiBooking(id) {
                 document.getElementById('penghuniTableBody').innerHTML = `<tr><td colspan="5" style="text-align: center; color: #777;">Gagal mengambil data penghuni dari database.</td></tr>`;
             }
         }
-async function hapusPenghuni(id){
+let idPenghuniHapus = null;
 
-    if(!confirm("Yakin ingin menghapus penghuni ini?")){
-        return;
-    }
+function hapusPenghuni(id) {
+    idPenghuniHapus = id;
+    document.getElementById("popupHapusPenghuni").style.display = "flex";
+}
 
-    try{
-        console.log("ID yang akan dihapus:", id);
+// Tunggu HTML selesai dimuat
+document.addEventListener("DOMContentLoaded", function () {
 
-        const response = await fetch(`/api/admin/penghuni/${id}`,{
-            method:"DELETE"
-        });
+    // Tombol Batal
+    document.getElementById("btnBatalHapus").addEventListener("click", function () {
+        document.getElementById("popupHapusPenghuni").style.display = "none";
+    });
 
-        const result = await response.json();
+    // Tombol Ya
+    document.getElementById("btnYaHapus").addEventListener("click", async function () {
 
-        if(result.success){
-            alert("Penghuni berhasil dihapus.");
+        document.getElementById("popupHapusPenghuni").style.display = "none";
 
-            loadPenghuniData();
-            loadStatistik();
+        try {
 
-        }else{
-            alert(result.message);
-        }
+            const response = await fetch(`/api/admin/penghuni/${idPenghuniHapus}`, {
+                method: "DELETE"
+            });
 
-    }catch(err){
+            const result = await response.json();
 
-        console.log(err);
-        alert("Terjadi kesalahan.");
+if (result.success) {
 
-    }
+    document.getElementById("popupBerhasilHapus").style.display = "flex";
+
+    document.getElementById("btnOkBerhasilHapus").onclick = function () {
+
+        document.getElementById("popupBerhasilHapus").style.display = "none";
+
+        loadPenghuniData();
+        loadStatistik();
+
+    };
 
 }
+
+        } catch (err) {
+
+            document.getElementById("popupGagalHapus").style.display = "flex";
+
+        }
+
+    });
+
+});
 async function loadLaporanData() {
     try {
         const response = await fetch('/api/admin/laporan');
@@ -571,6 +658,12 @@ async function tandaiSelesai(id) {
             localStorage.clear();
             window.location.href = 'login.html';
         }
+
+document.getElementById("btnOkGagalHapus").onclick = function () {
+
+    document.getElementById("popupGagalHapus").style.display = "none";
+
+};
     </script>
 
     <style>
@@ -583,5 +676,240 @@ async function tandaiSelesai(id) {
     .info-label { font-size: 11px; text-transform: uppercase; color: #a0aec0; font-weight: 700; letter-spacing: 0.8px; margin-bottom: 2px; display: block; }
     .info-value { font-size: 14px; color: #2d3748; font-weight: 500; margin: 0; }
     </style>
+
+    <div id="popupBerhasil"
+     style="display:none;
+     position:fixed;
+     top:0;
+     left:0;
+     width:100%;
+     height:100%;
+     background:rgba(0,0,0,.6);
+     justify-content:center;
+     align-items:center;
+     z-index:99999;">
+
+    <div style="background:#f9f9eb;
+                padding:30px;
+                border-radius:12px;
+                width:420px;
+                text-align:center;
+                font-family:'Poppins',sans-serif;">
+
+        <h3 style="color:#3c5a2c;">
+            Berhasil
+        </h3>
+
+        <p id="isiPopupBerhasil"
+           style="margin:20px 0; color:#333;">
+        </p>
+
+        <button id="btnPopupOK"
+                style="background:#3c5a2c;
+                       color:white;
+                       border:none;
+                       padding:10px 35px;
+                       border-radius:20px;
+                       cursor:pointer;">
+            OK
+        </button>
+
+    </div>
+
+</div>
+<div id="popupKonfirmasiTolak"
+style="display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.6);
+justify-content:center;
+align-items:center;
+z-index:99999;">
+
+    <div style="background:#f9f9eb;
+                padding:30px;
+                border-radius:12px;
+                width:420px;
+                text-align:center;
+                font-family:'Poppins',sans-serif;">
+
+        <h3 style="color:#b91c1c;">
+            Konfirmasi
+        </h3>
+
+        <p id="isiPopupTolak"
+           style="margin:20px 0;color:#333;">
+        </p>
+
+        <div style="display:flex;
+                    justify-content:center;
+                    gap:15px;">
+
+            <button id="btnYaTolak"
+            style="background:#b91c1c;
+                   color:white;
+                   border:none;
+                   padding:10px 30px;
+                   border-radius:20px;
+                   cursor:pointer;">
+                Ya
+            </button>
+
+            <button id="btnBatalTolak"
+            style="background:#999;
+                   color:white;
+                   border:none;
+                   padding:10px 30px;
+                   border-radius:20px;
+                   cursor:pointer;">
+                Batal
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<div id="popupHapusPenghuni"
+    style="display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.6);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;">
+
+    <div style="background:#f9f9eb;
+        padding:30px;
+        border-radius:12px;
+        width:420px;
+        text-align:center;
+        font-family:'Poppins',sans-serif;">
+
+        <h3 style="color:#b91c1c;">
+            Hapus Penghuni
+        </h3>
+
+        <p style="margin:20px 0;color:#333;">
+            Yakin ingin menghapus penghuni ini?
+        </p>
+
+        <div style="display:flex;justify-content:center;gap:15px;">
+
+            <button id="btnBatalHapus"
+                style="background:#9ca3af;
+                color:white;
+                border:none;
+                padding:10px 28px;
+                border-radius:20px;
+                cursor:pointer;">
+                Batal
+            </button>
+
+            <button id="btnYaHapus"
+                style="background:#dc2626;
+                color:white;
+                border:none;
+                padding:10px 28px;
+                border-radius:20px;
+                cursor:pointer;">
+                Ya
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+<div id="popupBerhasilHapus"
+    style="display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.6);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;">
+
+    <div style="
+        background:#f9f9eb;
+        width:420px;
+        padding:30px;
+        border-radius:12px;
+        text-align:center;
+        font-family:'Poppins',sans-serif;">
+
+        <h3 style="color:#16a34a;">
+            Berhasil
+        </h3>
+
+        <p style="margin:20px 0;">
+            Penghuni berhasil dihapus.
+        </p>
+
+        <button id="btnOkBerhasilHapus"
+            style="
+            background:#16a34a;
+            color:white;
+            border:none;
+            padding:10px 35px;
+            border-radius:20px;
+            cursor:pointer;">
+            OK
+        </button>
+
+    </div>
+
+</div>
+<div id="popupGagalHapus"
+    style="display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.6);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;">
+
+    <div style="
+        background:#f9f9eb;
+        width:420px;
+        padding:30px;
+        border-radius:12px;
+        text-align:center;
+        font-family:'Poppins',sans-serif;">
+
+        <h3 style="color:#dc2626;">
+            Gagal
+        </h3>
+
+        <p style="margin:20px 0;">
+            Gagal menghapus penghuni.
+        </p>
+
+        <button id="btnOkGagalHapus"
+            style="
+            background:#dc2626;
+            color:white;
+            border:none;
+            padding:10px 35px;
+            border-radius:20px;
+            cursor:pointer;">
+            OK
+        </button>
+
+    </div>
+
+</div>
 </body>
 </html>

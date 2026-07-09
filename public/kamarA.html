@@ -277,7 +277,12 @@ function pesanKamarTipeA() {
     const sudahLogin = localStorage.getItem('isLoggedIn');
 
     if (sudahLogin === 'true') {
-        window.location.href = 'form-booking.html';
+
+        localStorage.setItem("tipeKamar", "Tipe A");
+        localStorage.setItem("hargaKamar", "2000000");
+
+        window.location.href = 'form-booking.html?tipe=' + encodeURIComponent('Tipe A');
+
     } else {
         localStorage.setItem('halamanTerakhir', window.location.href);
 

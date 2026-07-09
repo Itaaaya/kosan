@@ -65,21 +65,13 @@
 
             <div class="form-section-title">Informasi Kamar</div>
             <div class="form-row">
-                <div class="form-group">
-                    <label>Pilih Tipe Kamar</label>
-                    <select name="tipe_kamar" id="tipe_kamar" required>
-                        <option value="" disabled selected>-- Pilih Tipe --</option>
-                        <option value="Tipe A">Tipe A</option>
-                        <option value="Tipe B">Tipe B</option>
-                        <option value="Tipe C">Tipe C</option>
-                        <option value="Tipe D">Tipe D</option>
-                    </select>
-                </div>
+                <input type="hidden" name="tipe_kamar" id="tipe_kamar">
 
                 <div class="form-group">
                     <label>Pilih Nomor Kamar</label>
                     <select name="nomor_kamar" id="nomor_kamar" required>
                         <option value="" disabled selected>-- Pilih Nomor --</option>
+                        
                     </select>
                 </div>
             </div>
@@ -185,54 +177,65 @@ if (!dataUserLokal || !dataUserLokal.id) {
     document.getElementById("formPemesanan").style.display = "none";
 } else {
     document.getElementById("id_user").value = dataUserLokal.id;
+
+const params = new URLSearchParams(window.location.search);
+const tipeDipilih = params.get("tipe");
+
+document.getElementById("tipe_kamar").value = tipeDipilih;
+loadNomorKamar(tipeDipilih);
 }
 
     // AMBIL DETAIL KAMAR DENGAN SINKRONISASI TIPE YANG BENAR
-    if (selectTipe && selectNomor) {
-        selectTipe.addEventListener('change', async function() {
-            const tipeKamarPilihan = this.value; // Contoh: "Tipe A"
-            selectNomor.innerHTML = '<option value="">-- Pilih Nomor --</option>';
-            resetKalkulasiHarga();
-            
-            if (!tipeKamarPilihan) return;
-try {
-console.log("Tipe yang dikirim:", tipeKamarPilihan);
+async function loadNomorKamar(tipeKamarPilihan) {
+    selectNomor.innerHTML =
+        '<option value="">-- Pilih Nomor --</option>';
 
-const response = await fetch(`/api/kamar/detail/${encodeURIComponent(tipeKamarPilihan)}`);
+    if (!tipeKamarPilihan) return;
 
-    console.log("Status:", response.status);
+    try {
+        const response = await fetch(
+            `/api/kamar/detail/${encodeURIComponent(tipeKamarPilihan)}`
+        );
 
-    const dataKamar = await response.json();
+        const dataKamar = await response.json();
+        console.log(dataKamar);
+        
 
-    console.log("Data dari server:", dataKamar);
-
-    if (!dataKamar || dataKamar.length === 0) {
-        selectNomor.innerHTML = '<option value="">Kamar Tidak Tersedia</option>';
-        return;
-    }
-
-    dataKamar.forEach(kamar => {
-        const statusKamar = String(kamar.status).toLowerCase();
-
-        if (statusKamar === 'tersedia' || statusKamar === 'kosong' || statusKamar === '1') {
-            const option = document.createElement('option');
-            option.value = kamar.nomor_kamar;
-            option.setAttribute('data-harga', kamar.harga);
-            option.textContent = `Kamar ${kamar.nomor_kamar}`;
-            selectNomor.appendChild(option);
+        if (!dataKamar || dataKamar.length === 0) {
+            selectNomor.innerHTML =
+                '<option value="">Kamar Tidak Tersedia</option>';
+            return;
         }
-    });
 
-    if (selectNomor.options.length === 1) {
-        selectNomor.innerHTML = '<option value="">Semua Kamar Penuh</option>';
-    }
+        dataKamar.forEach(kamar => {
+            const statusKamar =
+                String(kamar.status).toLowerCase();
 
-} catch (error) {
-    console.error("Error:", error);
-    selectNomor.innerHTML = '<option value="">Kamar Tidak Tersedia</option>';
-}
+            if (
+                statusKamar === 'tersedia' ||
+                statusKamar === 'kosong' ||
+                statusKamar === '1'
+            ) {
+                const option =
+                    document.createElement('option');
+
+                option.value = kamar.nomor_kamar;
+                option.textContent =
+                    `Kamar ${kamar.nomor_kamar}`;
+
+                option.setAttribute(
+                    'data-harga',
+                    kamar.harga
+                );
+
+                selectNomor.appendChild(option);
+            }
         });
+
+    } catch (error) {
+        console.error(error);
     }
+}
 
     // HITUNG LIVE TOTAL HARGA SAAT PENGGUNA MEMILIH NOMOR / DURASI
     function hitungLiveHarga() {
@@ -298,6 +301,7 @@ const response = await fetch(`/api/kamar/detail/${encodeURIComponent(tipeKamarPi
                     localStorage.setItem('tagihanNomor', nomorKamar);
                     localStorage.setItem('tagihanTanggal', document.getElementById('tanggal_masuk').value);
                     localStorage.setItem('tagihanDurasi', teksDurasi);
+                    localStorage.setItem('tagihanMetode', formData.get('metode_pembayaran'));
 
 document.getElementById("popupBookingBerhasil").style.display = "flex";
 
