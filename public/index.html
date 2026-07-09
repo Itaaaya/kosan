@@ -206,22 +206,39 @@
 
             // Jika sudah login, ubah tampilan tombol secara dinamis
             if (isLoggedIn === "true" && userNama && userRole) {
-                if (userRole === "user") {
-                    // JIKA USER BIASA: Muncul nama bersih tanpa emot aneh
-                    authContainer.innerHTML = `
-                        <span style="color: #333; font-weight: 500; margin-right: 15px; font-size: 14px; font-family: 'Montserrat', sans-serif;">${userNama}</span>
-                        <a href="#" id="btn-logout-umum" class="login-btn" style="background-color: #e53e3e !important; color: white !important;">LOGOUT</a>
-                    `;
+if (userRole === "user") {
+    // Container dibuat block agar turun ke bawah secara vertikal dengan rapi
+    authContainer.style.display = "block";
+    authContainer.style.width = "100%";
 
-                    // Aktifkan fungsi klik logout
-              document.getElementById('btn-logout-umum').addEventListener('click', function(e) {
+    // Teks nama pakai class nav-link biar sejajar, tombol LOGOUT pakai class login-btn murni tanpa dibungkus div ekstra
+    authContainer.innerHTML = `
+        <a href="#" class="nav-link" style="color: #333; font-weight: 500; cursor: default; text-transform: uppercase; pointer-events: none; display: block;">
+            ${userNama}
+        </a>
+        <a href="#" id="btn-logout-umum" class="login-btn" style="background-color: #e53e3e !important; color: white !important; margin-top: 10px;">
+            LOGOUT
+        </a>
+    `;
+
+// Aktifkan fungsi klik logout
+document.getElementById('btn-logout-umum').addEventListener('click', function(e) {
     e.preventDefault();
-
+    
+    // 1. Bersihkan session / local storage
     localStorage.clear();
 
-    // tampilkan popup custom
-    document.getElementById("popupLogout").style.display = "flex";
+    // 2. Tampilkan popup custom
+    const popup = document.getElementById("popupLogout");
+    popup.style.display = "flex";
+
+    // 3. PASANG FUNGSI KLIK UNTUK TOMBOL OK DI DALAM POPUP
+    document.getElementById("btnLogoutOK").onclick = function() {
+        popup.style.display = "none"; // Sembunyikan popup kembali
+        window.location.reload();     // Reload halaman supaya menu balik jadi "LOGIN"
+    };
 });
+
                 } else {
                     // 🔥 JIKA ADMIN ATAU PENGHUNI: Tulisan status dan emot jelek DIHAPUS TOTAL!
                     // Cuma nampilin nama panggilan/nama user aja dengan background aesthetic
