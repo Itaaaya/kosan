@@ -305,23 +305,34 @@ async function setujuiBooking(id) {
         const result = await response.json();
 
         if (result.success) {
-            // Memunculkan popup
-            document.getElementById("popupBerhasilHapus").style.display = "flex";
+            // 1. Ambil elemen popup yang muncul
+            const popup = document.getElementById("popupBerhasilHapus");
+            if (popup) {
+                popup.style.display = "flex";
 
-            // Menjalankan reload data otomatis setelahnya
-            loadPenghuniData();
-            loadStatistik();
+                // 2. JINAKKAN TOMBOLNYA DI SINI
+                // Kode ini akan mencari tombol OK di dalam popup tersebut, apa pun ID-nya
+                const btnOK = popup.querySelector("button") || popup.querySelector(".btn") || document.getElementById("btnPopupOK");
+                
+                if (btnOK) {
+                    btnOK.onclick = function() {
+                        popup.style.display = "none"; // Tutup popup saat klik OK
+                    };
+                }
+            }
+
+            // 3. Jalankan fungsi reload data setelah popup disiapkan
+            if (typeof loadPenghuniData === "function") loadPenghuniData();
+            if (typeof loadStatistik === "function") loadStatistik();
+            if (typeof loadBookingData === "function") loadBookingData();
+
         } else {
-            document.getElementById("popupGagalHapus").style.display = "flex";
+            alert(result.message || "Gagal menyetujui.");
         }
 
-    }catch(error){
-
-        document.getElementById("isiPopupBerhasil").innerHTML =
-        "Terjadi kesalahan sistem.";
-
-        document.getElementById("popupBerhasil").style.display = "flex";
-
+    } catch (error) {
+        console.error(error);
+        alert("Terjadi kesalahan sistem.");
     }
 }
 async function tolakBooking(idBooking, nama){
